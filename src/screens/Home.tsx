@@ -216,7 +216,6 @@ export default function Home({
               label="Water temp"
               primary={isMetric ? recipe.tempC.toString() : recipe.tempF.toString()}
               primaryUnit={isMetric ? "°C" : "°F"}
-              size="md"
             />
             <OutputRow
               label="Steep"
@@ -323,16 +322,13 @@ function OutputRow({
   primaryUnit,
   secondary,
   mono = false,
-  size = "lg",
 }: {
   label: string;
   primary: string;
   primaryUnit: string;
   secondary?: string;
   mono?: boolean;
-  size?: "lg" | "md";
 }) {
-  const primarySize = size === "md" ? "text-2xl" : "text-4xl";
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs uppercase tracking-[0.15em] text-muted">
@@ -340,7 +336,7 @@ function OutputRow({
       </span>
       <div className="flex items-baseline gap-2">
         <span
-          className={`${primarySize} font-light leading-none text-ink ${
+          className={`text-4xl font-light leading-none text-ink ${
             mono ? "font-mono tabular-nums" : ""
           }`}
         >
