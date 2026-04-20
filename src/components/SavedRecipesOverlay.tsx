@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Roast, SavedRecipe, Strength, Unit } from "../lib/types";
 import { formatPressVolume } from "../lib/format";
 
@@ -8,6 +8,7 @@ type Props = {
   unit: Unit;
   onClose: () => void;
   onLoad: (recipe: SavedRecipe) => void;
+  onDelete: (id: string) => void;
 };
 
 const STRENGTH_LABEL: Record<Strength, string> = {
@@ -31,15 +32,21 @@ function metaLine(recipe: SavedRecipe, unit: Unit): string {
   )}`;
 }
 
-export default function SavedRecipesOverlay({
-  open,
+export default function SavedRecipesOverlay(props: Props) {
+  if (!props.open) return null;
+  return <Overlay {...props} />;
+}
+
+function Overlay({
   recipes,
   unit,
   onClose,
   onLoad,
+  onDelete,
 }: Props) {
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
   useEffect(() => {
-    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -50,9 +57,7 @@ export default function SavedRecipesOverlay({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, [onClose]);
 
   const sorted = [...recipes].sort((a, b) => b.createdAt - a.createdAt);
 
@@ -81,28 +86,86 @@ export default function SavedRecipesOverlay({
           </div>
         ) : (
           <ul className="max-h-[60vh] divide-y divide-hairline overflow-y-auto border-t border-hairline">
-            {sorted.map((r) => (
-              <li key={r.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onLoad(r);
-                    onClose();
-                  }}
-                  className="flex w-full flex-col items-start gap-1 px-6 py-4 text-left transition-colors hover:bg-hairline/30"
-                >
-                  <span className="text-base font-medium text-ink">
-                    {r.name}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-[0.15em] text-muted">
-                    {metaLine(r, unit)}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {sorted.map((r) => {
+              const confirming = confirmingId === r.id;
+              return (
+                <li key={r.id}>
+                  {confirming ? (
+                    <div className="flex items-center gap-2 px-6 py-4">
+                      <span className="flex-1 truncate text-sm text-ink">
+                        Delete “{r.name}”?
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingId(null)}
+                        className="rounded-full px-3 py-1.5 text-sm text-muted hover:text-ink"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onDelete(r.id);
+                          setConfirmingId(null);
+                        }}
+                        className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-cream hover:opacity-90"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onLoad(r);
+                          onClose();
+                        }}
+                        className="flex flex-1 flex-col items-start gap-1 px-6 py-4 text-left transition-colors hover:bg-hairline/30"
+                      >
+                        <span className="text-base font-medium text-ink">
+                          {r.name}
+                        </span>
+                        <span className="text-[11px] uppercase tracking-[0.15em] text-muted">
+                          {metaLine(r, unit)}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Delete ${r.name}`}
+                        onClick={() => setConfirmingId(r.id)}
+                        className="mr-3 rounded-full p-2 text-muted transition-colors hover:bg-hairline/40 hover:text-ink"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
     </div>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m-6 0v9.5A1.5 1.5 0 0 0 7.5 17h5a1.5 1.5 0 0 0 1.5-1.5V6M8.5 9.5v4M11.5 9.5v4"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

@@ -12,7 +12,7 @@ import type {
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import SaveRecipeModal from "../components/SaveRecipeModal";
 import SavedRecipesOverlay from "../components/SavedRecipesOverlay";
-import { getSavedRecipes, saveRecipe } from "../lib/storage";
+import { deleteRecipe, getSavedRecipes, saveRecipe } from "../lib/storage";
 import { configSummary } from "../lib/format";
 
 type Screen = "home" | "brew" | "complete";
@@ -220,6 +220,11 @@ export default function Home({
     setToast(`Loaded “${r.name}”`);
   };
 
+  const handleDeleteRecipe = (id: string) => {
+    deleteRecipe(id);
+    setRecipes(getSavedRecipes());
+  };
+
   return (
     <div className="min-h-dvh bg-cream text-ink">
       <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
@@ -388,6 +393,7 @@ export default function Home({
         unit={unit}
         onClose={() => setSavedOpen(false)}
         onLoad={handleLoadRecipe}
+        onDelete={handleDeleteRecipe}
       />
 
       {toast && (
