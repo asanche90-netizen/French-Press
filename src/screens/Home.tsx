@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   Grind,
   PressPreset,
@@ -62,7 +62,7 @@ const PRESS_LABEL: Record<PressPreset, string> = {
   custom: "Custom",
 };
 
-const strengthOptions: DrawerOption<Strength>[] = [
+const STRENGTH_OPTIONS_METRIC: DrawerOption<Strength>[] = [
   { value: "weak", label: "Weak", secondary: "5.5 g / 100 ml" },
   { value: "mild", label: "Mild", secondary: "6 g / 100 ml" },
   { value: "balanced", label: "Balanced", secondary: "6.5 g / 100 ml" },
@@ -70,12 +70,26 @@ const strengthOptions: DrawerOption<Strength>[] = [
   { value: "bold", label: "Bold", secondary: "8.5 g / 100 ml" },
 ];
 
-const pressOptions: DrawerOption<PressPreset>[] = [
-  { value: "small", label: "Small", secondary: "2 cups · 350 ml" },
-  { value: "standard", label: "Standard", secondary: "3 cups · 500 ml" },
-  { value: "large", label: "Large", secondary: "6 cups · 1000 ml" },
-  { value: "custom", label: "Other", secondary: "Custom size" },
+const STRENGTH_OPTIONS_IMPERIAL: DrawerOption<Strength>[] = [
+  { value: "weak", label: "Weak", secondary: "1 tbsp / 3.4 fl oz" },
+  { value: "mild", label: "Mild", secondary: "1 tbsp / 3.1 fl oz" },
+  { value: "balanced", label: "Balanced", secondary: "1 tbsp / 2.9 fl oz" },
+  { value: "strong", label: "Strong", secondary: "1 tbsp / 2.5 fl oz" },
+  { value: "bold", label: "Bold", secondary: "1 tbsp / 2.2 fl oz" },
 ];
+
+const OZ_PER_ML = 0.033814;
+
+function pressOptionsFor(unit: Unit): DrawerOption<PressPreset>[] {
+  const size = (ml: number) =>
+    unit === "metric" ? `${ml} ml` : `${Math.round(ml * OZ_PER_ML)} fl oz`;
+  return [
+    { value: "small", label: "Small", secondary: `2 cups · ${size(350)}` },
+    { value: "standard", label: "Standard", secondary: `3 cups · ${size(500)}` },
+    { value: "large", label: "Large", secondary: `6 cups · ${size(1000)}` },
+    { value: "custom", label: "Other", secondary: "Custom size" },
+  ];
+}
 
 function Dots({ filled, total = 5 }: { filled: number; total?: number }) {
   return (
@@ -158,6 +172,12 @@ export default function Home({
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
 
   const isMetric = unit === "metric";
+
+  const strengthOptions = useMemo(
+    () => (isMetric ? STRENGTH_OPTIONS_METRIC : STRENGTH_OPTIONS_IMPERIAL),
+    [isMetric],
+  );
+  const pressOptions = useMemo(() => pressOptionsFor(unit), [unit]);
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
