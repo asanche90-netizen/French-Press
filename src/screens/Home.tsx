@@ -336,7 +336,7 @@ function OutputRow({
       </span>
       <div className="flex items-baseline gap-2">
         <span
-          className={`text-4xl font-light leading-none text-ink ${
+          className={`text-[64px] font-light leading-none text-ink ${
             mono ? "font-mono tabular-nums" : ""
           }`}
         >
