@@ -5,7 +5,15 @@
       "Bash(npx create-vite@latest --help)",
       "Bash(npx create-vite@latest . --template react-ts --overwrite --no-interactive)",
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Read(//Users/agustin/.ssh/**)",
+      "Bash(ssh -T git@github.com -o StrictHostKeyChecking=accept-new)",
+      "Bash(brew --version)",
+      "Bash(npx tsc *)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(node -e ' *)"
     ]
   }
 }
