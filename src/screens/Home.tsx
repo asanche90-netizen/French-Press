@@ -195,7 +195,7 @@ export default function Home({
           </a>
         </header>
 
-        <main className="flex flex-1 flex-col gap-4">
+        <main className="flex flex-col gap-4">
           <section className="mt-2 flex flex-col gap-1 pb-2">
             <OutputRow
               label="Coffee"
@@ -264,17 +264,17 @@ export default function Home({
               Save as recipe
             </button>
           </div>
-        </main>
 
-        <footer className="py-3 text-center">
-          <button
-            type="button"
-            onClick={() => console.log("saved recipes")}
-            className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-          >
-            Saved recipes
-          </button>
-        </footer>
+          <div className="mt-4 flex justify-center pb-6">
+            <button
+              type="button"
+              onClick={() => console.log("saved recipes")}
+              className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
+            >
+              Saved recipes
+            </button>
+          </div>
+        </main>
       </div>
 
       <Drawer
