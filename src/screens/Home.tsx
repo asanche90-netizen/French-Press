@@ -1,18 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import type {
   Grind,
   PressPreset,
   PressSize,
+  RecipeOutput,
   Roast,
   Strength,
   Unit,
 } from "../lib/types";
-import { calculateRecipe } from "../lib/recipe";
-import { getUnitPreference, setUnitPreference } from "../lib/storage";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 
 type Screen = "home" | "brew" | "complete";
-type Props = { onNavigate: (s: Screen) => void };
+type Props = {
+  strength: Strength;
+  press: PressSize;
+  grind: Grind;
+  roast: Roast;
+  unit: Unit;
+  recipe: RecipeOutput;
+  setStrength: (s: Strength) => void;
+  setPress: (p: PressSize) => void;
+  setGrind: (g: Grind) => void;
+  setRoast: (r: Roast) => void;
+  setUnit: (u: Unit) => void;
+  onNavigate: (s: Screen) => void;
+};
 type DrawerKey = null | "strength" | "press" | "grind" | "roast";
 
 const PRESS_PRESETS: Record<"small" | "standard" | "large", PressSize> = {
@@ -129,22 +141,21 @@ function formatCoffeeG(g: number) {
   return g.toFixed(1).replace(/\.0$/, "");
 }
 
-export default function Home({ onNavigate }: Props) {
-  const [strength, setStrength] = useState<Strength>("balanced");
-  const [press, setPress] = useState<PressSize>(PRESS_PRESETS.standard);
-  const [grind, setGrind] = useState<Grind>("coarse");
-  const [roast, setRoast] = useState<Roast>("medium");
-  const [unit, setUnit] = useState<Unit>(() => getUnitPreference());
+export default function Home({
+  strength,
+  press,
+  grind,
+  roast,
+  unit,
+  recipe,
+  setStrength,
+  setPress,
+  setGrind,
+  setRoast,
+  setUnit,
+  onNavigate,
+}: Props) {
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
-
-  useEffect(() => {
-    setUnitPreference(unit);
-  }, [unit]);
-
-  const recipe = useMemo(
-    () => calculateRecipe({ strength, press, grind, roast, units: unit }),
-    [strength, press, grind, roast, unit],
-  );
 
   const isMetric = unit === "metric";
 
