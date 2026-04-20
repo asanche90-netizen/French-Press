@@ -345,10 +345,10 @@ function OutputRow({
         {primaryUnit && (
           <span className="text-base text-muted">{primaryUnit}</span>
         )}
-        {secondary && (
-          <span className="text-sm text-muted">· {secondary}</span>
-        )}
       </div>
+      {secondary && (
+        <span className="text-xs text-muted/80">≈ {secondary}</span>
+      )}
     </div>
   );
 }
