@@ -162,7 +162,7 @@ export default function Home({
   return (
     <div className="min-h-dvh bg-cream text-ink">
       <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
-        <header className="flex items-center justify-between py-4">
+        <header className="flex items-center justify-between py-3">
           <div className="inline-flex rounded-full border border-hairline p-0.5 text-xs">
             <button
               type="button"
@@ -195,8 +195,8 @@ export default function Home({
           </a>
         </header>
 
-        <main className="flex flex-1 flex-col gap-6">
-          <section className="mt-6 flex flex-col gap-6 border-b border-hairline pb-8">
+        <main className="flex flex-1 flex-col gap-4">
+          <section className="mt-2 flex flex-col gap-3 border-b border-hairline pb-4">
             <OutputRow
               label="Coffee"
               primary={
@@ -211,7 +211,12 @@ export default function Home({
               label="Water"
               primary={isMetric ? recipe.waterMl.toString() : recipe.waterOz.toString()}
               primaryUnit={isMetric ? "ml" : "fl oz"}
-              secondary={isMetric ? `${recipe.tempC}°C` : `${recipe.tempF}°F`}
+            />
+            <OutputRow
+              label="Water temp"
+              primary={isMetric ? recipe.tempC.toString() : recipe.tempF.toString()}
+              primaryUnit={isMetric ? "°C" : "°F"}
+              size="md"
             />
             <OutputRow
               label="Steep"
@@ -248,7 +253,7 @@ export default function Home({
             <button
               type="button"
               onClick={() => onNavigate("brew")}
-              className="w-full rounded-full bg-accent py-4 text-base font-medium text-cream transition-opacity hover:opacity-90 active:opacity-80"
+              className="w-full rounded-full bg-accent py-3.5 text-base font-medium text-cream transition-opacity hover:opacity-90 active:opacity-80"
             >
               Begin brew
             </button>
@@ -262,7 +267,7 @@ export default function Home({
           </div>
         </main>
 
-        <footer className="py-6 text-center">
+        <footer className="py-3 text-center">
           <button
             type="button"
             onClick={() => console.log("saved recipes")}
@@ -318,21 +323,24 @@ function OutputRow({
   primaryUnit,
   secondary,
   mono = false,
+  size = "lg",
 }: {
   label: string;
   primary: string;
   primaryUnit: string;
   secondary?: string;
   mono?: boolean;
+  size?: "lg" | "md";
 }) {
+  const primarySize = size === "md" ? "text-2xl" : "text-4xl";
   return (
-    <div className="flex items-baseline justify-between gap-4">
+    <div className="flex flex-col gap-1">
       <span className="text-xs uppercase tracking-[0.15em] text-muted">
         {label}
       </span>
       <div className="flex items-baseline gap-2">
         <span
-          className={`text-5xl font-light leading-none text-ink ${
+          className={`${primarySize} font-light leading-none text-ink ${
             mono ? "font-mono tabular-nums" : ""
           }`}
         >
@@ -362,7 +370,7 @@ function InputRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-hairline/20"
+      className="flex items-center justify-between gap-4 py-3 text-left transition-colors hover:bg-hairline/20"
     >
       <span className="text-sm text-muted">{label}</span>
       <span className="flex items-center gap-2 text-ink">
