@@ -11,7 +11,8 @@ import type {
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import SaveRecipeModal from "../components/SaveRecipeModal";
-import { saveRecipe } from "../lib/storage";
+import SavedRecipesOverlay from "../components/SavedRecipesOverlay";
+import { getSavedRecipes, saveRecipe } from "../lib/storage";
 import { configSummary } from "../lib/format";
 
 type Screen = "home" | "brew" | "complete";
@@ -175,6 +176,8 @@ export default function Home({
 }: Props) {
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
   const [saveOpen, setSaveOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [recipes, setRecipes] = useState<SavedRecipe[]>(() => getSavedRecipes());
   const [toast, setToast] = useState<string | null>(null);
 
   const isMetric = unit === "metric";
@@ -204,8 +207,17 @@ export default function Home({
       createdAt: Date.now(),
     };
     saveRecipe(recipe);
+    setRecipes(getSavedRecipes());
     setSaveOpen(false);
     setToast(`Saved “${name}”`);
+  };
+
+  const handleLoadRecipe = (r: SavedRecipe) => {
+    setStrength(r.strength);
+    setPress(r.press);
+    setGrind(r.grind);
+    setRoast(r.roast);
+    setToast(`Loaded “${r.name}”`);
   };
 
   return (
@@ -318,7 +330,7 @@ export default function Home({
           <div className="mt-4 flex justify-center pb-6">
             <button
               type="button"
-              onClick={() => console.log("saved recipes")}
+              onClick={() => setSavedOpen(true)}
               className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
             >
               Saved recipes
@@ -368,6 +380,14 @@ export default function Home({
         summary={summary}
         onCancel={() => setSaveOpen(false)}
         onSave={handleSaveRecipe}
+      />
+
+      <SavedRecipesOverlay
+        open={savedOpen}
+        recipes={recipes}
+        unit={unit}
+        onClose={() => setSavedOpen(false)}
+        onLoad={handleLoadRecipe}
       />
 
       {toast && (
