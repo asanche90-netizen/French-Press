@@ -1,11 +1,16 @@
+import { useEffect, useState } from "react";
 import type {
   Grind,
   PressSize,
   RecipeOutput,
   Roast,
+  SavedRecipe,
   Strength,
   Unit,
 } from "../lib/types";
+import SaveRecipeModal from "../components/SaveRecipeModal";
+import { saveRecipe } from "../lib/storage";
+import { configSummary } from "../lib/format";
 
 type Screen = "home" | "brew" | "complete";
 
@@ -67,6 +72,32 @@ export default function Complete({
   roast,
   onNavigate,
 }: Props) {
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 1800);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  const saveSummary = configSummary({ roast, strength, press, grind }, unit);
+
+  const handleSaveRecipe = (name: string) => {
+    const recipe: SavedRecipe = {
+      id: crypto.randomUUID(),
+      name,
+      strength,
+      press,
+      grind,
+      roast,
+      createdAt: Date.now(),
+    };
+    saveRecipe(recipe);
+    setSaveOpen(false);
+    setToast(`Saved “${name}”`);
+  };
+
   const isMetric = unit === "metric";
   const coffeeDisplay = isMetric
     ? `${formatCoffeeG(recipe.coffeeG)} g`
@@ -116,7 +147,7 @@ export default function Complete({
         <footer className="flex flex-col items-center gap-3 py-6">
           <button
             type="button"
-            onClick={() => console.log("save recipe")}
+            onClick={() => setSaveOpen(true)}
             className="w-full rounded-full bg-ink py-4 text-base font-medium text-cream hover:opacity-90"
           >
             Save recipe
@@ -137,6 +168,25 @@ export default function Complete({
           </button>
         </footer>
       </div>
+
+      <SaveRecipeModal
+        open={saveOpen}
+        summary={saveSummary}
+        onCancel={() => setSaveOpen(false)}
+        onSave={handleSaveRecipe}
+      />
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+        >
+          <div className="rounded-full bg-ink px-4 py-2 text-xs font-medium text-cream shadow-lg animate-[fade-in_180ms_ease-out]">
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
