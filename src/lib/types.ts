@@ -18,24 +18,33 @@ export type PressSize = {
 
 export type Unit = "metric" | "imperial";
 
-export type RecipeInput = {
-  press: PressSize;
-  roast: Roast;
-  grind: Grind;
+export type RecipeConfig = {
   strength: Strength;
+  press: PressSize;
+  grind: Grind;
+  roast: Roast;
+  units: Unit;
 };
 
 export type RecipeOutput = {
-  coffeeGrams: number;
+  coffeeG: number;
+  coffeeTbsp: number;
   waterMl: number;
+  waterOz: number;
+  tempC: number;
+  tempF: number;
+  steepSec: number;
   bloomMl: number;
-  waterTempC: number;
-  steepSeconds: number;
 };
 
 export type SavedRecipe = {
   id: string;
   name: string;
-  input: RecipeInput;
+  config: {
+    strength: Strength;
+    press: PressSize;
+    grind: Grind;
+    roast: Roast;
+  };
   createdAt: number;
 };
