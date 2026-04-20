@@ -203,9 +203,6 @@ export default function Home({
                 isMetric ? formatCoffeeG(recipe.coffeeG) : recipe.coffeeTbsp.toString()
               }
               primaryUnit={isMetric ? "g" : "tbsp"}
-              secondary={
-                isMetric ? undefined : `${formatCoffeeG(recipe.coffeeG)} g`
-              }
             />
             <OutputRow
               label="Water"
@@ -320,13 +317,11 @@ function OutputRow({
   label,
   primary,
   primaryUnit,
-  secondary,
   mono = false,
 }: {
   label: string;
   primary: string;
   primaryUnit: string;
-  secondary?: string;
   mono?: boolean;
 }) {
   return (
@@ -346,9 +341,6 @@ function OutputRow({
           <span className="text-base text-muted">{primaryUnit}</span>
         )}
       </div>
-      {secondary && (
-        <span className="text-xs text-muted/80">≈ {secondary}</span>
-      )}
     </div>
   );
 }
