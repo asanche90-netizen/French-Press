@@ -250,7 +250,11 @@ export default function Home({
             />
             <InputRow
               label="Press"
-              value={`${PRESS_LABEL[press.preset]} · ${press.ml} ml`}
+              value={`${PRESS_LABEL[press.preset]} · ${
+                isMetric
+                  ? `${press.ml} ml`
+                  : `${Math.round(press.ml * OZ_PER_ML)} fl oz`
+              }`}
               onClick={() => setOpenDrawer("press")}
             />
             <InputRow
