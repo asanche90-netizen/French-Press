@@ -215,8 +215,8 @@ export default function Brew({ recipe, unit, onNavigate }: Props) {
     return step.baseSubtitle;
   })();
 
-  const progress =
-    step.duration > 0 ? 1 - timerSec / step.duration : 0;
+  // Fraction of time remaining: 1 at start, 0 at end.
+  const progress = step.duration > 0 ? timerSec / step.duration : 0;
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
@@ -319,7 +319,8 @@ function TimerRing({
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(1, Math.max(0, progress));
-  const dashOffset = circumference * clamped;
+  // Stroke shrinks as time elapses: offset = C at progress=0, offset = 0 at progress=1
+  const dashOffset = circumference * (1 - clamped);
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -348,7 +349,6 @@ function TimerRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
-          style={{ transition: "stroke-dashoffset 1s linear" }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
