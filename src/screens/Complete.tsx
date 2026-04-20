@@ -80,8 +80,8 @@ export default function Complete({
   const summary = `${STRENGTH_LABEL[strength]} · ${PRESS_LABEL[press.preset]} · ${GRIND_LABEL[grind]} grind · ${ROAST_LABEL[roast]} roast`;
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <div className="mx-auto flex min-h-screen max-w-xl flex-col px-5">
+    <div className="min-h-dvh bg-cream text-ink">
+      <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
         <header className="flex items-center justify-between py-4">
           <span aria-hidden="true" />
           <span className="text-sm text-muted">Done</span>

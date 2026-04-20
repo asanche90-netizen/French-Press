@@ -219,8 +219,8 @@ export default function Brew({ recipe, unit, onNavigate }: Props) {
     step.duration > 0 ? 1 - timerSec / step.duration : 0;
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <div className="mx-auto flex min-h-screen max-w-xl flex-col px-5">
+    <div className="min-h-dvh bg-cream text-ink">
+      <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
         <header className="flex items-center justify-between py-4">
           <button
             type="button"

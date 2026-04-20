@@ -160,8 +160,8 @@ export default function Home({
   const isMetric = unit === "metric";
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
-      <div className="mx-auto flex min-h-screen max-w-xl flex-col px-5">
+    <div className="min-h-dvh bg-cream text-ink">
+      <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
         <header className="flex items-center justify-between py-4">
           <div className="inline-flex rounded-full border border-hairline p-0.5 text-xs">
             <button

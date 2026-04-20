@@ -54,7 +54,7 @@ export default function Drawer<T extends string>({
         onClick={onClose}
         className="absolute inset-0 bg-ink/40 animate-[fade-in_180ms_ease-out]"
       />
-      <div className="relative w-full max-w-xl rounded-t-3xl bg-cream pb-8 pt-3 shadow-2xl animate-[slide-up_220ms_cubic-bezier(0.2,0.8,0.2,1)]">
+      <div className="relative w-full max-w-[480px] rounded-t-3xl bg-cream pb-8 pt-3 shadow-2xl animate-[slide-up_220ms_cubic-bezier(0.2,0.8,0.2,1)]">
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-hairline" />
         <div className="px-6 pb-3">
           <h2 className="text-lg font-medium text-ink">{title}</h2>
