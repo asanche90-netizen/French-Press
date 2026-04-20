@@ -1,14 +1,18 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type {
   Grind,
   PressPreset,
   PressSize,
   RecipeOutput,
   Roast,
+  SavedRecipe,
   Strength,
   Unit,
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
+import SaveRecipeModal from "../components/SaveRecipeModal";
+import { saveRecipe } from "../lib/storage";
+import { configSummary } from "../lib/format";
 
 type Screen = "home" | "brew" | "complete";
 type Props = {
@@ -170,6 +174,8 @@ export default function Home({
   onNavigate,
 }: Props) {
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isMetric = unit === "metric";
 
@@ -178,6 +184,29 @@ export default function Home({
     [isMetric],
   );
   const pressOptions = useMemo(() => pressOptionsFor(unit), [unit]);
+
+  const summary = configSummary({ roast, strength, press, grind }, unit);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 1800);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  const handleSaveRecipe = (name: string) => {
+    const recipe: SavedRecipe = {
+      id: crypto.randomUUID(),
+      name,
+      strength,
+      press,
+      grind,
+      roast,
+      createdAt: Date.now(),
+    };
+    saveRecipe(recipe);
+    setSaveOpen(false);
+    setToast(`Saved “${name}”`);
+  };
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
@@ -279,7 +308,7 @@ export default function Home({
             </button>
             <button
               type="button"
-              onClick={() => console.log("save recipe")}
+              onClick={() => setSaveOpen(true)}
               className="py-1 text-sm font-medium text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
             >
               Save as recipe
@@ -333,6 +362,25 @@ export default function Home({
         onSelect={setRoast}
         onClose={() => setOpenDrawer(null)}
       />
+
+      <SaveRecipeModal
+        open={saveOpen}
+        summary={summary}
+        onCancel={() => setSaveOpen(false)}
+        onSave={handleSaveRecipe}
+      />
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+        >
+          <div className="rounded-full bg-ink px-4 py-2 text-xs font-medium text-cream shadow-lg animate-[fade-in_180ms_ease-out]">
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
