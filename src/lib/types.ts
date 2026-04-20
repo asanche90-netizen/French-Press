@@ -40,11 +40,9 @@ export type RecipeOutput = {
 export type SavedRecipe = {
   id: string;
   name: string;
-  config: {
-    strength: Strength;
-    press: PressSize;
-    grind: Grind;
-    roast: Roast;
-  };
+  strength: Strength;
+  press: PressSize;
+  grind: Grind;
+  roast: Roast;
   createdAt: number;
 };
