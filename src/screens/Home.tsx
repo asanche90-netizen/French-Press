@@ -259,7 +259,7 @@ export default function Home({
             <button
               type="button"
               onClick={() => console.log("save recipe")}
-              className="py-1 text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
+              className="py-1 text-sm font-medium text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
             >
               Save as recipe
             </button>
