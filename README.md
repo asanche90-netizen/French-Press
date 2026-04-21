@@ -2,6 +2,10 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Notes
+
+`.npmrc` exists because vite-plugin-pwa hasn't updated its peer dependency range to support Vite 8 yet. This file can be removed once vite-plugin-pwa supports Vite 8.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
