@@ -2,6 +2,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import OneOhOneCard from "./OneOhOneCard";
 import RatioIllustration from "./illustrations/RatioIllustration";
 import TemperatureIllustration from "./illustrations/TemperatureIllustration";
+import GrindIllustration from "./illustrations/GrindIllustration";
+import BloomIllustration from "./illustrations/BloomIllustration";
+import ExtractionIllustration from "./illustrations/ExtractionIllustration";
+import PourIllustration from "./illustrations/PourIllustration";
 
 type Props = {
   open: boolean;
@@ -33,18 +37,30 @@ const CARDS: CardData[] = [
   {
     headline: "Bigger grind, slower brew.",
     body: "In a French press, coffee sits in water for minutes. Coarse grind is essential — fine grind over-extracts, turns bitter, and slips past the mesh filter. Think sea salt, not table salt.",
+    illustration: <GrindIllustration />,
+    illustrationLabel:
+      "A row of circles growing from fine to coarse, with the coarse end highlighted as the French press zone.",
   },
   {
     headline: "Let it breathe.",
     body: "Fresh coffee holds trapped CO₂ from roasting. Pour a little water first and the grounds puff up, releasing gas. Skip this, and the gas blocks even extraction. The first 45 seconds of the brew are just the coffee breathing out.",
+    illustration: <BloomIllustration />,
+    illustrationLabel:
+      "Coffee grounds in a press with bubbles rising from the surface as the bloom releases gas.",
   },
   {
     headline: "Four minutes to flavor.",
     body: "Different compounds extract at different rates. Sweetness and body come out first; bitterness comes out last. Four minutes is the sweet spot where the good stuff is in the cup and the harsh stuff hasn't arrived yet.",
+    illustration: <ExtractionIllustration />,
+    illustrationLabel:
+      "Three extraction curves over time — sweetness peaks early, body in the middle, bitterness rises steeply at the end, with the four-minute mark highlighted.",
   },
   {
     headline: "Don't leave it sitting.",
     body: "Plunging doesn't stop extraction — it just separates the bulk of the grounds from the filter. Any coffee left in the press keeps brewing, and keeps getting bitter. Pour it all out when you're done. The second cup waits in a mug, not the press.",
+    illustration: <PourIllustration />,
+    illustrationLabel:
+      "Coffee streams from a French press into a mug — the press empties as the mug fills.",
   },
 ];
 
