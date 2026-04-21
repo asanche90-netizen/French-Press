@@ -9,7 +9,7 @@ export type Grind =
   | "coarse"
   | "extra-coarse";
 
-export type PressPreset = "small" | "standard" | "large" | "custom";
+export type PressPreset = "small" | "standard" | "large";
 
 export type PressSize = {
   preset: PressPreset;

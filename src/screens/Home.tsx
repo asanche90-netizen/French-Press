@@ -64,7 +64,6 @@ const PRESS_LABEL: Record<PressPreset, string> = {
   small: "Small",
   standard: "Standard",
   large: "Large",
-  custom: "Custom",
 };
 
 const STRENGTH_OPTIONS_METRIC: DrawerOption<Strength>[] = [
@@ -92,7 +91,6 @@ function pressOptionsFor(unit: Unit): DrawerOption<PressPreset>[] {
     { value: "small", label: "Small", secondary: `2 cups · ${size(350)}` },
     { value: "standard", label: "Standard", secondary: `3 cups · ${size(500)}` },
     { value: "large", label: "Large", secondary: `6 cups · ${size(1000)}` },
-    { value: "custom", label: "Other", secondary: "Custom size" },
   ];
 }
 
@@ -357,10 +355,7 @@ export default function Home({
         title="Press size"
         options={pressOptions}
         activeValue={press.preset}
-        onSelect={(preset) => {
-          if (preset === "custom") return;
-          setPress(PRESS_PRESETS[preset]);
-        }}
+        onSelect={(preset) => setPress(PRESS_PRESETS[preset])}
         onClose={() => setOpenDrawer(null)}
       />
       <Drawer

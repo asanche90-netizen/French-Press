@@ -50,7 +50,6 @@ const PRESS_LABEL: Record<PressSize["preset"], string> = {
   small: "Small",
   standard: "Standard",
   large: "Large",
-  custom: "Custom",
 };
 
 function formatTime(sec: number) {
