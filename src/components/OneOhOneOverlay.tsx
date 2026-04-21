@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import OneOhOneCard from "./OneOhOneCard";
 import RatioIllustration from "./illustrations/RatioIllustration";
+import TemperatureIllustration from "./illustrations/TemperatureIllustration";
 
 type Props = {
   open: boolean;
@@ -25,6 +26,9 @@ const CARDS: CardData[] = [
   {
     headline: "Hot, but not too hot.",
     body: "Water temperature controls how fast coffee extracts. Hotter water pulls flavor quickly — great for dense dark roasts, harsh on delicate light ones. Lighter roasts want near-boiling water. Darker roasts want slightly cooler. The app picks the right temp for your beans.",
+    illustration: <TemperatureIllustration />,
+    illustrationLabel:
+      "A thermometer with light roast at the hot end and dark roast at the cooler end.",
   },
   {
     headline: "Bigger grind, slower brew.",
