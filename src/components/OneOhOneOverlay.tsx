@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import OneOhOneCard from "./OneOhOneCard";
 
 type Props = {
@@ -9,6 +9,8 @@ type Props = {
 type CardData = {
   headline: string;
   body: string;
+  illustration?: ReactNode;
+  illustrationLabel?: string;
 };
 
 const CARDS: CardData[] = [
@@ -16,13 +18,49 @@ const CARDS: CardData[] = [
     headline: "How strong is strong?",
     body: "The ratio of coffee to water decides how your brew tastes. More coffee per water makes a bolder cup. Less makes a brighter, lighter one. Everything else — temperature, time, grind — balances around this one decision.",
   },
+  {
+    headline: "Hot, but not too hot.",
+    body: "Water temperature controls how fast coffee extracts. Hotter water pulls flavor quickly — great for dense dark roasts, harsh on delicate light ones. Lighter roasts want near-boiling water. Darker roasts want slightly cooler. The app picks the right temp for your beans.",
+  },
+  {
+    headline: "Bigger grind, slower brew.",
+    body: "In a French press, coffee sits in water for minutes. Coarse grind is essential — fine grind over-extracts, turns bitter, and slips past the mesh filter. Think sea salt, not table salt.",
+  },
+  {
+    headline: "Let it breathe.",
+    body: "Fresh coffee holds trapped CO₂ from roasting. Pour a little water first and the grounds puff up, releasing gas. Skip this, and the gas blocks even extraction. The first 45 seconds of the brew are just the coffee breathing out.",
+  },
+  {
+    headline: "Four minutes to flavor.",
+    body: "Different compounds extract at different rates. Sweetness and body come out first; bitterness comes out last. Four minutes is the sweet spot where the good stuff is in the cup and the harsh stuff hasn't arrived yet.",
+  },
+  {
+    headline: "Don't leave it sitting.",
+    body: "Plunging doesn't stop extraction — it just separates the bulk of the grounds from the filter. Any coffee left in the press keeps brewing, and keeps getting bitter. Pour it all out when you're done. The second cup waits in a mug, not the press.",
+  },
 ];
 
+const SWIPE_THRESHOLD_PX = 50;
+
 export default function OneOhOneOverlay({ open, onClose }: Props) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX = useRef(0);
+
+  useEffect(() => {
+    if (!open) return;
+    setActiveIndex(0);
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") {
+        setActiveIndex((i) => Math.min(i + 1, CARDS.length - 1));
+      } else if (e.key === "ArrowLeft") {
+        setActiveIndex((i) => Math.max(i - 1, 0));
+      }
     };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -35,7 +73,31 @@ export default function OneOhOneOverlay({ open, onClose }: Props) {
 
   if (!open) return null;
 
-  const card = CARDS[0];
+  const card = CARDS[activeIndex];
+  const canPrev = activeIndex > 0;
+  const canNext = activeIndex < CARDS.length - 1;
+
+  const goPrev = () => canPrev && setActiveIndex((i) => i - 1);
+  const goNext = () => {
+    if (canNext) setActiveIndex((i) => i + 1);
+    else onClose();
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+  const onTouchEnd = () => {
+    const delta = touchDeltaX.current;
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+    if (delta <= -SWIPE_THRESHOLD_PX) goNext();
+    else if (delta >= SWIPE_THRESHOLD_PX) goPrev();
+  };
 
   return (
     <div
@@ -78,10 +140,96 @@ export default function OneOhOneOverlay({ open, onClose }: Props) {
             101
           </span>
         </div>
-        <div className="flex min-h-0 flex-1">
-          <OneOhOneCard headline={card.headline} body={card.body} />
+
+        <div
+          className="relative flex min-h-0 flex-1"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <NavChevron
+            direction="prev"
+            visible={canPrev}
+            onClick={goPrev}
+          />
+          <div key={activeIndex} className="flex min-w-0 flex-1">
+            <OneOhOneCard
+              headline={card.headline}
+              body={card.body}
+              illustration={card.illustration}
+              illustrationLabel={card.illustrationLabel}
+            />
+          </div>
+          <NavChevron
+            direction="next"
+            visible={canNext}
+            onClick={goNext}
+          />
+        </div>
+
+        <div className="flex items-center justify-center gap-2 pb-6 pt-4">
+          {CARDS.map((_, i) => {
+            const isActive = i === activeIndex;
+            return (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to card ${i + 1}`}
+                aria-current={isActive ? "true" : undefined}
+                onClick={() => setActiveIndex(i)}
+                className="flex h-6 w-6 items-center justify-center"
+              >
+                <span
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    isActive ? "bg-accent" : "bg-hairline"
+                  }`}
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
+  );
+}
+
+function NavChevron({
+  direction,
+  visible,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  visible: boolean;
+  onClick: () => void;
+}) {
+  if (!visible) return <span className="w-6 shrink-0 md:w-10" aria-hidden />;
+  const isPrev = direction === "prev";
+  return (
+    <button
+      type="button"
+      aria-label={isPrev ? "Previous card" : "Next card"}
+      onClick={onClick}
+      className={`hidden shrink-0 items-center justify-center self-center text-muted transition-colors hover:text-ink md:flex md:w-10 ${
+        isPrev ? "" : ""
+      }`}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {isPrev ? (
+          <path d="M11 3 L5 9 L11 15" />
+        ) : (
+          <path d="M7 3 L13 9 L7 15" />
+        )}
+      </svg>
+    </button>
   );
 }
