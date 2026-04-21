@@ -12,6 +12,7 @@ import type {
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import SaveRecipeModal from "../components/SaveRecipeModal";
 import SavedRecipesOverlay from "../components/SavedRecipesOverlay";
+import OneOhOneOverlay from "../components/OneOhOneOverlay";
 import { deleteRecipe, getSavedRecipes, saveRecipe } from "../lib/storage";
 import { configSummary } from "../lib/format";
 
@@ -175,6 +176,7 @@ export default function Home({
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [oneOhOneOpen, setOneOhOneOpen] = useState(false);
   const [recipes, setRecipes] = useState<SavedRecipe[]>(() => getSavedRecipes());
   const [toast, setToast] = useState<string | null>(null);
 
@@ -250,13 +252,13 @@ export default function Home({
           <h1 className="text-sm font-medium tracking-wide text-ink">
             French Press
           </h1>
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="text-sm text-muted hover:text-ink"
+          <button
+            type="button"
+            onClick={() => setOneOhOneOpen(true)}
+            className="text-sm text-muted transition-colors hover:text-ink"
           >
             101
-          </a>
+          </button>
         </header>
 
         <main className="flex flex-col gap-4">
@@ -389,6 +391,11 @@ export default function Home({
         onClose={() => setSavedOpen(false)}
         onLoad={handleLoadRecipe}
         onDelete={handleDeleteRecipe}
+      />
+
+      <OneOhOneOverlay
+        open={oneOhOneOpen}
+        onClose={() => setOneOhOneOpen(false)}
       />
 
       {toast && (
