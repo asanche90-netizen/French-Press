@@ -1,9 +1,22 @@
 import { useEffect } from "react";
+import OneOhOneCard from "./OneOhOneCard";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
+
+type CardData = {
+  headline: string;
+  body: string;
+};
+
+const CARDS: CardData[] = [
+  {
+    headline: "How strong is strong?",
+    body: "The ratio of coffee to water decides how your brew tastes. More coffee per water makes a bolder cup. Less makes a brighter, lighter one. Everything else — temperature, time, grind — balances around this one decision.",
+  },
+];
 
 export default function OneOhOneOverlay({ open, onClose }: Props) {
   useEffect(() => {
@@ -22,6 +35,8 @@ export default function OneOhOneOverlay({ open, onClose }: Props) {
 
   if (!open) return null;
 
+  const card = CARDS[0];
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center"
@@ -35,7 +50,7 @@ export default function OneOhOneOverlay({ open, onClose }: Props) {
         onClick={onClose}
         className="absolute inset-0 bg-ink/40 animate-[fade-in_180ms_ease-out]"
       />
-      <div className="relative flex w-full max-w-[480px] flex-col rounded-t-3xl bg-cream shadow-2xl animate-[slide-up_260ms_cubic-bezier(0.2,0.8,0.2,1)] h-[88dvh]">
+      <div className="relative flex h-[88dvh] w-full max-w-[480px] flex-col rounded-t-3xl bg-cream shadow-2xl animate-[slide-up_260ms_cubic-bezier(0.2,0.8,0.2,1)]">
         <div className="relative pt-3">
           <div className="mx-auto h-1.5 w-10 rounded-full bg-hairline" />
           <button
@@ -58,12 +73,14 @@ export default function OneOhOneOverlay({ open, onClose }: Props) {
             </svg>
           </button>
         </div>
-        <div className="px-6 pt-4">
+        <div className="px-6 pb-3 pt-4">
           <span className="text-xs uppercase tracking-[0.2em] text-muted">
             101
           </span>
         </div>
-        <div className="flex-1" />
+        <div className="flex min-h-0 flex-1">
+          <OneOhOneCard headline={card.headline} body={card.body} />
+        </div>
       </div>
     </div>
   );
