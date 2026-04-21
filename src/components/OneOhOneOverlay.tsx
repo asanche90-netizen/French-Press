@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import OneOhOneCard from "./OneOhOneCard";
+import RatioIllustration from "./illustrations/RatioIllustration";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,9 @@ const CARDS: CardData[] = [
   {
     headline: "How strong is strong?",
     body: "The ratio of coffee to water decides how your brew tastes. More coffee per water makes a bolder cup. Less makes a brighter, lighter one. Everything else — temperature, time, grind — balances around this one decision.",
+    illustration: <RatioIllustration />,
+    illustrationLabel:
+      "A balance scale with coffee on one pan and water on the other, tilting and settling level.",
   },
   {
     headline: "Hot, but not too hot.",
