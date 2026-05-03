@@ -24,6 +24,8 @@ type Props = {
   setUnit: (u: Unit) => void;
   onNavigate: (s: Screen) => void;
   onBack: () => void;
+  onOpenSave: () => void;
+  onOpenSavedRecipes: () => void;
 };
 
 type DrawerKey = null | "water" | "strength" | "roast";
@@ -162,6 +164,8 @@ export default function HomePourOver({
   setUnit,
   onNavigate,
   onBack,
+  onOpenSave,
+  onOpenSavedRecipes,
 }: Props) {
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
   const [oneOhOneOpen, setOneOhOneOpen] = useState(false);
@@ -300,6 +304,23 @@ export default function HomePourOver({
               className="w-full rounded-full bg-accent py-3.5 text-base font-medium text-cream transition-opacity hover:opacity-90 active:opacity-80"
             >
               Begin brew
+            </button>
+            <button
+              type="button"
+              onClick={onOpenSave}
+              className="py-1 text-sm font-medium text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
+            >
+              Save as recipe
+            </button>
+          </div>
+
+          <div className="mt-4 flex justify-center pb-6">
+            <button
+              type="button"
+              onClick={onOpenSavedRecipes}
+              className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
+            >
+              Saved recipes
             </button>
           </div>
         </main>

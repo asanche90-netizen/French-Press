@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   BrewMethod,
   Grind,
@@ -6,16 +6,11 @@ import type {
   PressSize,
   RecipeOutput,
   Roast,
-  SavedRecipe,
   Strength,
   Unit,
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
-import SaveRecipeModal from "../components/SaveRecipeModal";
-import SavedRecipesOverlay from "../components/SavedRecipesOverlay";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
-import { deleteRecipe, getSavedRecipes, saveRecipe } from "../lib/storage";
-import { configSummary } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
 type Props = {
@@ -33,6 +28,8 @@ type Props = {
   setUnit: (u: Unit) => void;
   onNavigate: (s: Screen) => void;
   onBack: () => void;
+  onOpenSave: () => void;
+  onOpenSavedRecipes: () => void;
 };
 
 const METHOD_LABEL: Record<BrewMethod, string> = {
@@ -183,13 +180,11 @@ export default function Home({
   setUnit,
   onNavigate,
   onBack,
+  onOpenSave,
+  onOpenSavedRecipes,
 }: Props) {
   const [openDrawer, setOpenDrawer] = useState<DrawerKey>(null);
-  const [saveOpen, setSaveOpen] = useState(false);
-  const [savedOpen, setSavedOpen] = useState(false);
   const [oneOhOneOpen, setOneOhOneOpen] = useState(false);
-  const [recipes, setRecipes] = useState<SavedRecipe[]>(() => getSavedRecipes());
-  const [toast, setToast] = useState<string | null>(null);
 
   const isMetric = unit === "metric";
 
@@ -198,44 +193,6 @@ export default function Home({
     [isMetric],
   );
   const pressOptions = useMemo(() => pressOptionsFor(unit), [unit]);
-
-  const summary = configSummary({ roast, strength, press, grind }, unit);
-
-  useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(null), 1800);
-    return () => clearTimeout(id);
-  }, [toast]);
-
-  const handleSaveRecipe = (name: string) => {
-    const recipe: SavedRecipe = {
-      id: crypto.randomUUID(),
-      name,
-      method,
-      strength,
-      press,
-      grind,
-      roast,
-      createdAt: Date.now(),
-    };
-    saveRecipe(recipe);
-    setRecipes(getSavedRecipes());
-    setSaveOpen(false);
-    setToast(`Saved “${name}”`);
-  };
-
-  const handleLoadRecipe = (r: SavedRecipe) => {
-    setStrength(r.strength);
-    setPress(r.press);
-    setGrind(r.grind);
-    setRoast(r.roast);
-    setToast(`Loaded “${r.name}”`);
-  };
-
-  const handleDeleteRecipe = (id: string) => {
-    deleteRecipe(id);
-    setRecipes(getSavedRecipes());
-  };
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
@@ -361,7 +318,7 @@ export default function Home({
             </button>
             <button
               type="button"
-              onClick={() => setSaveOpen(true)}
+              onClick={onOpenSave}
               className="py-1 text-sm font-medium text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
             >
               Save as recipe
@@ -371,7 +328,7 @@ export default function Home({
           <div className="mt-4 flex justify-center pb-6">
             <button
               type="button"
-              onClick={() => setSavedOpen(true)}
+              onClick={onOpenSavedRecipes}
               className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
             >
               Saved recipes
@@ -413,38 +370,10 @@ export default function Home({
         onClose={() => setOpenDrawer(null)}
       />
 
-      <SaveRecipeModal
-        open={saveOpen}
-        summary={summary}
-        onCancel={() => setSaveOpen(false)}
-        onSave={handleSaveRecipe}
-      />
-
-      <SavedRecipesOverlay
-        open={savedOpen}
-        recipes={recipes}
-        unit={unit}
-        onClose={() => setSavedOpen(false)}
-        onLoad={handleLoadRecipe}
-        onDelete={handleDeleteRecipe}
-      />
-
       <OneOhOneOverlay
         open={oneOhOneOpen}
         onClose={() => setOneOhOneOpen(false)}
       />
-
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
-        >
-          <div className="rounded-full bg-ink px-4 py-2 text-xs font-medium text-cream shadow-lg animate-[fade-in_180ms_ease-out]">
-            {toast}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

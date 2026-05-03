@@ -5,12 +5,20 @@ import HomeDrip from "./screens/HomeDrip";
 import Brew from "./screens/Brew";
 import Complete, { type RecapRow } from "./screens/Complete";
 import MethodSelect from "./screens/MethodSelect";
+import SaveRecipeModal from "./components/SaveRecipeModal";
+import SavedRecipesOverlay from "./components/SavedRecipesOverlay";
 import {
   calculateDripRecipe,
   calculatePourOverRecipe,
   calculateRecipe,
 } from "./lib/recipe";
-import { getUnitPreference, saveRecipe, setUnitPreference } from "./lib/storage";
+import {
+  deleteRecipe as storageDeleteRecipe,
+  getSavedRecipes,
+  getUnitPreference,
+  saveRecipe as storageSaveRecipe,
+  setUnitPreference,
+} from "./lib/storage";
 import {
   buildDripSteps,
   buildFrenchPressSteps,
@@ -32,6 +40,7 @@ type Screen = "method-select" | "home" | "brew" | "complete";
 
 const DEFAULT_PRESS: PressSize = { preset: "standard", ml: 500 };
 const DEFAULT_WATER_ML = 500;
+const OZ_PER_ML = 0.033814;
 
 const ROAST_LABEL: Record<Roast, string> = {
   light: "Light",
@@ -45,6 +54,11 @@ const STRENGTH_LABEL: Record<Strength, string> = {
   strong: "Strong",
   bold: "Bold",
 };
+const METHOD_LABEL: Record<BrewMethod, string> = {
+  "french-press": "French Press",
+  "pour-over": "Pour Over",
+  drip: "Drip",
+};
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60);
@@ -54,6 +68,12 @@ function formatTime(sec: number) {
 
 function formatCoffeeG(g: number) {
   return g.toFixed(1).replace(/\.0$/, "");
+}
+
+function formatVolume(ml: number, unit: Unit): string {
+  return unit === "metric"
+    ? `${ml} ml`
+    : `${Math.round(ml * OZ_PER_ML)} fl oz`;
 }
 
 export default function App() {
@@ -66,9 +86,24 @@ export default function App() {
   const [waterMl, setWaterMl] = useState<number>(DEFAULT_WATER_ML);
   const [unit, setUnit] = useState<Unit>(() => getUnitPreference());
 
+  // Cross-method save UI state lives here so it doesn't reset when the
+  // user switches between method flows.
+  const [recipes, setRecipes] = useState<SavedRecipe[]>(() =>
+    getSavedRecipes(),
+  );
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
   useEffect(() => {
     setUnitPreference(unit);
   }, [unit]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 1800);
+    return () => clearTimeout(id);
+  }, [toast]);
 
   const recipe = useMemo(
     () => calculateRecipe({ strength, press, grind, roast, units: unit }),
@@ -83,9 +118,93 @@ export default function App() {
     [waterMl, roast, strength],
   );
 
-  // No method picked yet — show the picker regardless of screen state.
+  // Summary string shown in the Save Recipe modal — describes the config
+  // about to be saved. Format mirrors the saved-list meta line.
+  const saveSummary = useMemo(() => {
+    if (method === null) return "";
+    if (method === "french-press") {
+      return configSummary({ roast, strength, press, grind }, unit);
+    }
+    return `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${formatVolume(
+      waterMl,
+      unit,
+    )} · ${METHOD_LABEL[method]}`;
+  }, [method, roast, strength, press, grind, waterMl, unit]);
+
+  const handleSave = (name: string) => {
+    if (method === null) return;
+    let r: SavedRecipe;
+    if (method === "french-press") {
+      r = {
+        id: crypto.randomUUID(),
+        name,
+        method: "french-press",
+        strength,
+        press,
+        grind,
+        roast,
+        createdAt: Date.now(),
+      };
+    } else if (method === "pour-over") {
+      r = {
+        id: crypto.randomUUID(),
+        name,
+        method: "pour-over",
+        strength,
+        waterMl,
+        roast,
+        createdAt: Date.now(),
+      };
+    } else {
+      r = {
+        id: crypto.randomUUID(),
+        name,
+        method: "drip",
+        strength,
+        waterMl,
+        roast,
+        createdAt: Date.now(),
+      };
+    }
+    storageSaveRecipe(r);
+    setRecipes(getSavedRecipes());
+    setSaveOpen(false);
+    setToast(`Saved “${name}”`);
+  };
+
+  const handleLoad = (r: SavedRecipe) => {
+    setStrength(r.strength);
+    setRoast(r.roast);
+    if (r.method === "french-press") {
+      setPress(r.press);
+      setGrind(r.grind);
+    } else {
+      setWaterMl(r.waterMl);
+    }
+    setMethod(r.method);
+    setScreen("home");
+    setSavedOpen(false);
+    setToast(`Loaded “${r.name}”`);
+  };
+
+  const handleDelete = (id: string) => {
+    storageDeleteRecipe(id);
+    setRecipes(getSavedRecipes());
+  };
+
+  const goBackToMethodSelect = () => {
+    setMethod(null);
+    setScreen("method-select");
+  };
+
+  const openSave = () => setSaveOpen(true);
+  const openSaved = () => setSavedOpen(true);
+
+  // ---- Routing ----------------------------------------------------------
+
+  let flow;
   if (method === null || screen === "method-select") {
-    return (
+    flow = (
       <MethodSelect
         onSelect={(m) => {
           setMethod(m);
@@ -93,15 +212,8 @@ export default function App() {
         }}
       />
     );
-  }
-
-  const goBackToMethodSelect = () => {
-    setMethod(null);
-    setScreen("method-select");
-  };
-
-  if (method === "french-press") {
-    return (
+  } else if (method === "french-press") {
+    flow = (
       <FrenchPressFlow
         screen={screen}
         setScreen={setScreen}
@@ -118,12 +230,12 @@ export default function App() {
         setRoast={setRoast}
         setUnit={setUnit}
         onBack={goBackToMethodSelect}
+        onOpenSave={openSave}
+        onOpenSavedRecipes={openSaved}
       />
     );
-  }
-
-  if (method === "pour-over") {
-    return (
+  } else if (method === "pour-over") {
+    flow = (
       <PourOverFlow
         screen={screen}
         setScreen={setScreen}
@@ -138,27 +250,64 @@ export default function App() {
         setWaterMl={setWaterMl}
         setUnit={setUnit}
         onBack={goBackToMethodSelect}
+        onOpenSave={openSave}
+        onOpenSavedRecipes={openSaved}
+      />
+    );
+  } else {
+    flow = (
+      <DripFlow
+        screen={screen}
+        setScreen={setScreen}
+        method={method}
+        recipe={dripRecipe}
+        unit={unit}
+        strength={strength}
+        roast={roast}
+        waterMl={waterMl}
+        setStrength={setStrength}
+        setRoast={setRoast}
+        setWaterMl={setWaterMl}
+        setUnit={setUnit}
+        onBack={goBackToMethodSelect}
+        onOpenSave={openSave}
+        onOpenSavedRecipes={openSaved}
       />
     );
   }
 
-  // method === "drip"
   return (
-    <DripFlow
-      screen={screen}
-      setScreen={setScreen}
-      method={method}
-      recipe={dripRecipe}
-      unit={unit}
-      strength={strength}
-      roast={roast}
-      waterMl={waterMl}
-      setStrength={setStrength}
-      setRoast={setRoast}
-      setWaterMl={setWaterMl}
-      setUnit={setUnit}
-      onBack={goBackToMethodSelect}
-    />
+    <>
+      {flow}
+
+      <SaveRecipeModal
+        open={saveOpen}
+        summary={saveSummary}
+        onCancel={() => setSaveOpen(false)}
+        onSave={handleSave}
+      />
+
+      <SavedRecipesOverlay
+        open={savedOpen}
+        recipes={recipes}
+        unit={unit}
+        onClose={() => setSavedOpen(false)}
+        onLoad={handleLoad}
+        onDelete={handleDelete}
+      />
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+        >
+          <div className="rounded-full bg-ink px-4 py-2 text-xs font-medium text-cream shadow-lg animate-[fade-in_180ms_ease-out]">
+            {toast}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -180,6 +329,8 @@ type FrenchPressFlowProps = {
   setRoast: (r: Roast) => void;
   setUnit: (u: Unit) => void;
   onBack: () => void;
+  onOpenSave: () => void;
+  onOpenSavedRecipes: () => void;
 };
 
 function FrenchPressFlow({
@@ -198,6 +349,8 @@ function FrenchPressFlow({
   setRoast,
   setUnit,
   onBack,
+  onOpenSave,
+  onOpenSavedRecipes,
 }: FrenchPressFlowProps) {
   const steps = useMemo<Step[]>(
     () => buildFrenchPressSteps(recipe, unit),
@@ -224,30 +377,12 @@ function FrenchPressFlow({
       },
       { label: "Steep", value: formatTime(recipe.steepSec), mono: true },
     ];
-    const saveSummary = configSummary(
-      { roast, strength, press, grind },
-      unit,
-    );
-    const handleSave = (name: string) => {
-      const r: SavedRecipe = {
-        id: crypto.randomUUID(),
-        name,
-        method,
-        strength,
-        press,
-        grind,
-        roast,
-        createdAt: Date.now(),
-      };
-      saveRecipe(r);
-    };
+    const summary = configSummary({ roast, strength, press, grind }, unit);
     return (
       <Complete
         recap={recap}
-        summary={saveSummary}
-        canSave
-        saveSummary={saveSummary}
-        onSave={handleSave}
+        summary={summary}
+        onOpenSave={onOpenSave}
         onNavigate={setScreen}
       />
     );
@@ -269,6 +404,8 @@ function FrenchPressFlow({
       setUnit={setUnit}
       onNavigate={setScreen}
       onBack={onBack}
+      onOpenSave={onOpenSave}
+      onOpenSavedRecipes={onOpenSavedRecipes}
     />
   );
 }
@@ -289,6 +426,8 @@ type PourOverFlowProps = {
   setWaterMl: (ml: number) => void;
   setUnit: (u: Unit) => void;
   onBack: () => void;
+  onOpenSave: () => void;
+  onOpenSavedRecipes: () => void;
 };
 
 function PourOverFlow({
@@ -305,6 +444,8 @@ function PourOverFlow({
   setWaterMl,
   setUnit,
   onBack,
+  onOpenSave,
+  onOpenSavedRecipes,
 }: PourOverFlowProps) {
   const steps = useMemo<Step[]>(
     () => buildPourOverSteps(recipe, unit),
@@ -332,16 +473,15 @@ function PourOverFlow({
       },
       { label: "Total", value: formatTime(totalSec), mono: true },
     ];
-    const summary = `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${
-      isMetric
-        ? `${recipe.waterMl} ml`
-        : `${recipe.waterOz} fl oz`
-    } · Pour over`;
+    const summary = `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${formatVolume(
+      waterMl,
+      unit,
+    )} · Pour over`;
     return (
       <Complete
         recap={recap}
         summary={summary}
-        canSave={false}
+        onOpenSave={onOpenSave}
         onNavigate={setScreen}
       />
     );
@@ -361,6 +501,8 @@ function PourOverFlow({
       setUnit={setUnit}
       onNavigate={setScreen}
       onBack={onBack}
+      onOpenSave={onOpenSave}
+      onOpenSavedRecipes={onOpenSavedRecipes}
     />
   );
 }
@@ -381,6 +523,8 @@ type DripFlowProps = {
   setWaterMl: (ml: number) => void;
   setUnit: (u: Unit) => void;
   onBack: () => void;
+  onOpenSave: () => void;
+  onOpenSavedRecipes: () => void;
 };
 
 function DripFlow({
@@ -397,6 +541,8 @@ function DripFlow({
   setWaterMl,
   setUnit,
   onBack,
+  onOpenSave,
+  onOpenSavedRecipes,
 }: DripFlowProps) {
   const steps = useMemo<Step[]>(
     () => buildDripSteps(recipe, unit),
@@ -421,14 +567,15 @@ function DripFlow({
       },
       { label: "Brew", value: formatTime(recipe.brewSec), mono: true },
     ];
-    const summary = `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${
-      isMetric ? `${recipe.waterMl} ml` : `${recipe.waterOz} fl oz`
-    } · Drip`;
+    const summary = `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${formatVolume(
+      waterMl,
+      unit,
+    )} · Drip`;
     return (
       <Complete
         recap={recap}
         summary={summary}
-        canSave={false}
+        onOpenSave={onOpenSave}
         onNavigate={setScreen}
       />
     );
@@ -448,6 +595,8 @@ function DripFlow({
       setUnit={setUnit}
       onNavigate={setScreen}
       onBack={onBack}
+      onOpenSave={onOpenSave}
+      onOpenSavedRecipes={onOpenSavedRecipes}
     />
   );
 }

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import type { Roast, SavedRecipe, Strength, Unit } from "../lib/types";
+import type {
+  BrewMethod,
+  Roast,
+  SavedRecipe,
+  Strength,
+  Unit,
+} from "../lib/types";
 import { formatPressVolume } from "../lib/format";
 
 type Props = {
@@ -25,9 +31,24 @@ const ROAST_LABEL: Record<Roast, string> = {
   dark: "Dark",
 };
 
+const METHOD_LABEL: Record<BrewMethod, string> = {
+  "french-press": "French Press",
+  "pour-over": "Pour Over",
+  drip: "Drip",
+};
+
+function volumeLabel(recipe: SavedRecipe, unit: Unit): string {
+  if (recipe.method === "french-press") {
+    return formatPressVolume(recipe.press, unit);
+  }
+  return unit === "metric"
+    ? `${recipe.waterMl} ml`
+    : `${Math.round(recipe.waterMl * 0.033814)} fl oz`;
+}
+
 function metaLine(recipe: SavedRecipe, unit: Unit): string {
-  return `${ROAST_LABEL[recipe.roast]} · ${STRENGTH_LABEL[recipe.strength]} · ${formatPressVolume(
-    recipe.press,
+  return `${ROAST_LABEL[recipe.roast]} · ${STRENGTH_LABEL[recipe.strength]} · ${volumeLabel(
+    recipe,
     unit,
   )}`;
 }
@@ -121,8 +142,11 @@ function Overlay({
                           onLoad(r);
                           onClose();
                         }}
-                        className="flex flex-1 flex-col items-start gap-1 px-6 py-4 text-left transition-colors hover:bg-hairline/30"
+                        className="flex flex-1 flex-col items-start gap-0.5 px-6 py-4 text-left transition-colors hover:bg-hairline/30"
                       >
+                        <span className="text-[10px] uppercase tracking-[0.18em] text-accent">
+                          {METHOD_LABEL[r.method]}
+                        </span>
                         <span className="text-base font-medium text-ink">
                           {r.name}
                         </span>

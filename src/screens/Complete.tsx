@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import SaveRecipeModal from "../components/SaveRecipeModal";
-
 type Screen = "method-select" | "home" | "brew" | "complete";
 
 export type RecapRow = {
@@ -9,40 +6,19 @@ export type RecapRow = {
   mono?: boolean;
 };
 
-type SaveProps =
-  | {
-      canSave: false;
-    }
-  | {
-      canSave: true;
-      saveSummary: string;
-      onSave: (name: string) => void;
-    };
-
 type Props = {
   recap: RecapRow[];
   summary: string;
   onNavigate: (screen: Screen) => void;
-} & SaveProps;
+  onOpenSave?: () => void;
+};
 
-export default function Complete(props: Props) {
-  const { recap, summary, onNavigate } = props;
-  const [saveOpen, setSaveOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(null), 1800);
-    return () => clearTimeout(id);
-  }, [toast]);
-
-  const handleSave = (name: string) => {
-    if (!props.canSave) return;
-    props.onSave(name);
-    setSaveOpen(false);
-    setToast(`Saved “${name}”`);
-  };
-
+export default function Complete({
+  recap,
+  summary,
+  onNavigate,
+  onOpenSave,
+}: Props) {
   return (
     <div className="min-h-dvh bg-cream text-ink">
       <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
@@ -76,10 +52,10 @@ export default function Complete(props: Props) {
         </main>
 
         <footer className="flex flex-col items-center gap-3 py-6">
-          {props.canSave && (
+          {onOpenSave && (
             <button
               type="button"
-              onClick={() => setSaveOpen(true)}
+              onClick={onOpenSave}
               className="w-full rounded-full bg-ink py-4 text-base font-medium text-cream hover:opacity-90"
             >
               Save recipe
@@ -101,27 +77,6 @@ export default function Complete(props: Props) {
           </button>
         </footer>
       </div>
-
-      {props.canSave && (
-        <SaveRecipeModal
-          open={saveOpen}
-          summary={props.saveSummary}
-          onCancel={() => setSaveOpen(false)}
-          onSave={handleSave}
-        />
-      )}
-
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
-        >
-          <div className="rounded-full bg-ink px-4 py-2 text-xs font-medium text-cream shadow-lg animate-[fade-in_180ms_ease-out]">
-            {toast}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

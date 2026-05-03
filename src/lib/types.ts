@@ -77,13 +77,25 @@ export type DripOutput = {
   brewSec: number;
 };
 
-export type SavedRecipe = {
+type SavedRecipeBase = {
   id: string;
   name: string;
-  method: BrewMethod;
   strength: Strength;
-  press: PressSize;
-  grind: Grind;
   roast: Roast;
   createdAt: number;
 };
+
+export type SavedRecipe =
+  | (SavedRecipeBase & {
+      method: "french-press";
+      press: PressSize;
+      grind: Grind;
+    })
+  | (SavedRecipeBase & {
+      method: "pour-over";
+      waterMl: number;
+    })
+  | (SavedRecipeBase & {
+      method: "drip";
+      waterMl: number;
+    });
