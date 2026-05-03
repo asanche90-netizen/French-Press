@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Home from "./screens/Home";
 import HomePourOver from "./screens/HomePourOver";
+import HomeDrip from "./screens/HomeDrip";
 import Brew from "./screens/Brew";
 import Complete, { type RecapRow } from "./screens/Complete";
 import MethodSelect from "./screens/MethodSelect";
-import { calculatePourOverRecipe, calculateRecipe } from "./lib/recipe";
+import {
+  calculateDripRecipe,
+  calculatePourOverRecipe,
+  calculateRecipe,
+} from "./lib/recipe";
 import { getUnitPreference, saveRecipe, setUnitPreference } from "./lib/storage";
 import {
+  buildDripSteps,
   buildFrenchPressSteps,
   buildPourOverSteps,
   type Step,
@@ -72,6 +78,10 @@ export default function App() {
     () => calculatePourOverRecipe({ waterMl, roast, strength }),
     [waterMl, roast, strength],
   );
+  const dripRecipe = useMemo(
+    () => calculateDripRecipe({ waterMl, roast, strength }),
+    [waterMl, roast, strength],
+  );
 
   // No method picked yet — show the picker regardless of screen state.
   if (method === null || screen === "method-select") {
@@ -132,13 +142,22 @@ export default function App() {
     );
   }
 
-  // Drip arrives in Step 4; for now route back to the picker.
+  // method === "drip"
   return (
-    <MethodSelect
-      onSelect={(m) => {
-        setMethod(m);
-        setScreen("home");
-      }}
+    <DripFlow
+      screen={screen}
+      setScreen={setScreen}
+      method={method}
+      recipe={dripRecipe}
+      unit={unit}
+      strength={strength}
+      roast={roast}
+      waterMl={waterMl}
+      setStrength={setStrength}
+      setRoast={setRoast}
+      setWaterMl={setWaterMl}
+      setUnit={setUnit}
+      onBack={goBackToMethodSelect}
     />
   );
 }
@@ -330,6 +349,93 @@ function PourOverFlow({
 
   return (
     <HomePourOver
+      method={method}
+      waterMl={waterMl}
+      roast={roast}
+      strength={strength}
+      unit={unit}
+      recipe={recipe}
+      setWaterMl={setWaterMl}
+      setRoast={setRoast}
+      setStrength={setStrength}
+      setUnit={setUnit}
+      onNavigate={setScreen}
+      onBack={onBack}
+    />
+  );
+}
+
+// --- Drip ----------------------------------------------------------------
+
+type DripFlowProps = {
+  screen: Screen;
+  setScreen: (s: Screen) => void;
+  method: BrewMethod;
+  recipe: ReturnType<typeof calculateDripRecipe>;
+  unit: Unit;
+  strength: Strength;
+  roast: Roast;
+  waterMl: number;
+  setStrength: (s: Strength) => void;
+  setRoast: (r: Roast) => void;
+  setWaterMl: (ml: number) => void;
+  setUnit: (u: Unit) => void;
+  onBack: () => void;
+};
+
+function DripFlow({
+  screen,
+  setScreen,
+  method,
+  recipe,
+  unit,
+  strength,
+  roast,
+  waterMl,
+  setStrength,
+  setRoast,
+  setWaterMl,
+  setUnit,
+  onBack,
+}: DripFlowProps) {
+  const steps = useMemo<Step[]>(
+    () => buildDripSteps(recipe, unit),
+    [recipe, unit],
+  );
+
+  if (screen === "brew") {
+    return <Brew steps={steps} onNavigate={setScreen} />;
+  }
+  if (screen === "complete") {
+    const isMetric = unit === "metric";
+    const recap: RecapRow[] = [
+      {
+        label: "Coffee",
+        value: isMetric
+          ? `${formatCoffeeG(recipe.coffeeG)} g`
+          : `${recipe.coffeeTbsp} tbsp`,
+      },
+      {
+        label: "Water",
+        value: isMetric ? `${recipe.waterMl} ml` : `${recipe.waterOz} fl oz`,
+      },
+      { label: "Brew", value: formatTime(recipe.brewSec), mono: true },
+    ];
+    const summary = `${ROAST_LABEL[roast]} roast · ${STRENGTH_LABEL[strength]} · ${
+      isMetric ? `${recipe.waterMl} ml` : `${recipe.waterOz} fl oz`
+    } · Drip`;
+    return (
+      <Complete
+        recap={recap}
+        summary={summary}
+        canSave={false}
+        onNavigate={setScreen}
+      />
+    );
+  }
+
+  return (
+    <HomeDrip
       method={method}
       waterMl={waterMl}
       roast={roast}

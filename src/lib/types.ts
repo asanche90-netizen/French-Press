@@ -63,6 +63,20 @@ export type PourOverOutput = {
   drainSec: number;
 };
 
+export type DripConfig = {
+  waterMl: number;
+  roast: Roast;
+  strength: Strength;
+};
+
+export type DripOutput = {
+  coffeeG: number;
+  coffeeTbsp: number;
+  waterMl: number;
+  waterOz: number;
+  brewSec: number;
+};
+
 export type SavedRecipe = {
   id: string;
   name: string;

@@ -1,4 +1,5 @@
 import type {
+  DripOutput,
   PourOverOutput,
   RecipeOutput,
   Unit,
@@ -153,6 +154,57 @@ export function buildPourOverSteps(
       name: "Enjoy",
       title: "Enjoy.",
       subtitle: "Decant and serve.",
+      duration: 0,
+    },
+  ];
+}
+
+export function buildDripSteps(recipe: DripOutput, unit: Unit): Step[] {
+  const waterStr =
+    unit === "metric" ? `${recipe.waterMl} ml` : `${recipe.waterOz} fl oz`;
+
+  return [
+    {
+      id: "grind",
+      name: "Grind coffee",
+      title: "Grind coffee.",
+      subtitle: "Medium grind, like sea salt.",
+      duration: 0,
+    },
+    {
+      id: "filter",
+      name: "Add filter",
+      title: "Add paper filter.",
+      subtitle: "Drop a fresh filter into the basket.",
+      duration: 0,
+    },
+    {
+      id: "add-coffee",
+      name: "Add coffee",
+      title: "Add coffee.",
+      subtitle: `Pour ${formatCoffeeG(recipe.coffeeG)}g into the basket.`,
+      duration: 0,
+    },
+    {
+      id: "add-water",
+      name: "Add water",
+      title: "Fill reservoir.",
+      subtitle: `Pour ${waterStr} into the water tank.`,
+      duration: 0,
+    },
+    {
+      id: "brew",
+      name: "Brew",
+      title: "Start your machine.",
+      subtitle: "Let it run until the carafe is full.",
+      duration: recipe.brewSec,
+    },
+    {
+      // Terminal sentinel: navigates to Complete instead of displaying.
+      id: "drip-complete",
+      name: "Enjoy",
+      title: "Enjoy.",
+      subtitle: "Pour and serve.",
       duration: 0,
     },
   ];

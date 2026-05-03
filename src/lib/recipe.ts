@@ -1,4 +1,6 @@
 import type {
+  DripConfig,
+  DripOutput,
   Grind,
   PourOverConfig,
   PourOverOutput,
@@ -108,5 +110,29 @@ export function calculatePourOverRecipe(config: PourOverConfig): PourOverOutput 
     pour3Ml,
     pour3Oz: Math.round(pour3Ml * OZ_PER_ML),
     drainSec,
+  };
+}
+
+// Drip is the simplest method — the machine controls temperature and pour.
+// Only the dose, water volume, and total brew time matter.
+const DRIP_BREW_SEC: Record<Roast, number> = {
+  light: 360, // 6:00
+  medium: 300, // 5:00
+  dark: 270, // 4:30
+};
+
+export function calculateDripRecipe(config: DripConfig): DripOutput {
+  const { waterMl, roast, strength } = config;
+
+  const coffeeG = (waterMl * STRENGTH_RATIO[strength]) / 100;
+  const coffeeTbsp = Math.round((coffeeG / GRAMS_PER_TBSP) * 2) / 2;
+  const waterOz = Math.round(waterMl * OZ_PER_ML);
+
+  return {
+    coffeeG,
+    coffeeTbsp,
+    waterMl,
+    waterOz,
+    brewSec: DRIP_BREW_SEC[roast],
   };
 }
