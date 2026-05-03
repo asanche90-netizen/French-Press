@@ -39,6 +39,30 @@ export type RecipeOutput = {
   bloomMl: number;
 };
 
+export type PourOverConfig = {
+  waterMl: number;
+  roast: Roast;
+  strength: Strength;
+};
+
+export type PourOverOutput = {
+  coffeeG: number;
+  coffeeTbsp: number;
+  waterMl: number;
+  waterOz: number;
+  tempC: number;
+  tempF: number;
+  bloomMl: number;
+  bloomSec: number;
+  pour1Ml: number;
+  pour1Oz: number;
+  pour2Ml: number;
+  pour2Oz: number;
+  pour3Ml: number;
+  pour3Oz: number;
+  drainSec: number;
+};
+
 export type SavedRecipe = {
   id: string;
   name: string;

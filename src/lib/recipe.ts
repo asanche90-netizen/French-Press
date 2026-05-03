@@ -1,5 +1,7 @@
 import type {
   Grind,
+  PourOverConfig,
+  PourOverOutput,
   RecipeConfig,
   RecipeOutput,
   Roast,
@@ -57,5 +59,54 @@ export function calculateRecipe(config: RecipeConfig): RecipeOutput {
     tempF: TEMP_F[roast],
     steepSec,
     bloomMl,
+  };
+}
+
+// Pour over uses the same strength ratio table as French press but a different
+// brew structure: 3:1 bloom, three timed pours, total brew time set by roast.
+const POUR_OVER_BLOOM_SEC = 45;
+const POUR_OVER_POUR_WAIT_SEC = 45;
+const POUR_OVER_TOTAL_SEC: Record<Roast, number> = {
+  light: 210, // 3:30
+  medium: 180, // 3:00
+  dark: 150, // 2:30
+};
+
+export function calculatePourOverRecipe(config: PourOverConfig): PourOverOutput {
+  const { waterMl, roast, strength } = config;
+
+  const coffeeG = (waterMl * STRENGTH_RATIO[strength]) / 100;
+  const bloomMl = coffeeG * 3;
+
+  const remaining = waterMl - bloomMl;
+  const pour1Ml = remaining * 0.4;
+  const pour2Ml = remaining * 0.35;
+  const pour3Ml = remaining - pour1Ml - pour2Ml;
+
+  // Drain after pour 3 fills out the remainder of the total brew window.
+  const drainSec =
+    POUR_OVER_TOTAL_SEC[roast] -
+    POUR_OVER_BLOOM_SEC -
+    2 * POUR_OVER_POUR_WAIT_SEC;
+
+  const coffeeTbsp = Math.round((coffeeG / GRAMS_PER_TBSP) * 2) / 2;
+  const waterOz = Math.round(waterMl * OZ_PER_ML);
+
+  return {
+    coffeeG,
+    coffeeTbsp,
+    waterMl,
+    waterOz,
+    tempC: TEMP_C[roast],
+    tempF: TEMP_F[roast],
+    bloomMl,
+    bloomSec: POUR_OVER_BLOOM_SEC,
+    pour1Ml,
+    pour1Oz: Math.round(pour1Ml * OZ_PER_ML),
+    pour2Ml,
+    pour2Oz: Math.round(pour2Ml * OZ_PER_ML),
+    pour3Ml,
+    pour3Oz: Math.round(pour3Ml * OZ_PER_ML),
+    drainSec,
   };
 }
