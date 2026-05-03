@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type {
+  BrewMethod,
   Grind,
   PressSize,
   RecipeOutput,
@@ -17,6 +18,7 @@ type Screen = "home" | "brew" | "complete";
 type Props = {
   recipe: RecipeOutput;
   unit: Unit;
+  method: BrewMethod;
   strength: Strength;
   press: PressSize;
   grind: Grind;
@@ -65,6 +67,7 @@ function formatCoffeeG(g: number) {
 export default function Complete({
   recipe,
   unit,
+  method,
   strength,
   press,
   grind,
@@ -86,6 +89,7 @@ export default function Complete({
     const recipe: SavedRecipe = {
       id: crypto.randomUUID(),
       name,
+      method,
       strength,
       press,
       grind,

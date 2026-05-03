@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import Home from "./screens/Home";
 import Brew from "./screens/Brew";
 import Complete from "./screens/Complete";
+import MethodSelect from "./screens/MethodSelect";
 import { calculateRecipe } from "./lib/recipe";
 import { getUnitPreference, setUnitPreference } from "./lib/storage";
 import type {
+  BrewMethod,
   Grind,
   PressSize,
   Roast,
@@ -12,12 +14,13 @@ import type {
   Unit,
 } from "./lib/types";
 
-type Screen = "home" | "brew" | "complete";
+type Screen = "method-select" | "home" | "brew" | "complete";
 
 const DEFAULT_PRESS: PressSize = { preset: "standard", ml: 500 };
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("home");
+  const [screen, setScreen] = useState<Screen>("method-select");
+  const [method, setMethod] = useState<BrewMethod | null>(null);
   const [strength, setStrength] = useState<Strength>("balanced");
   const [press, setPress] = useState<PressSize>(DEFAULT_PRESS);
   const [grind, setGrind] = useState<Grind>("coarse");
@@ -33,6 +36,23 @@ export default function App() {
     [strength, press, grind, roast, unit],
   );
 
+  // No method picked yet — show the picker regardless of screen state.
+  if (method === null || screen === "method-select") {
+    return (
+      <MethodSelect
+        onSelect={(m) => {
+          setMethod(m);
+          setScreen("home");
+        }}
+      />
+    );
+  }
+
+  const goBackToMethodSelect = () => {
+    setMethod(null);
+    setScreen("method-select");
+  };
+
   if (screen === "brew") {
     return (
       <Brew
@@ -47,6 +67,7 @@ export default function App() {
       <Complete
         recipe={recipe}
         unit={unit}
+        method={method}
         strength={strength}
         press={press}
         grind={grind}
@@ -57,6 +78,7 @@ export default function App() {
   }
   return (
     <Home
+      method={method}
       strength={strength}
       press={press}
       grind={grind}
@@ -69,6 +91,7 @@ export default function App() {
       setRoast={setRoast}
       setUnit={setUnit}
       onNavigate={setScreen}
+      onBack={goBackToMethodSelect}
     />
   );
 }

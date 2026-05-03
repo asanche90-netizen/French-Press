@@ -1,3 +1,5 @@
+export type BrewMethod = "french-press" | "pour-over" | "drip";
+
 export type Strength = "weak" | "mild" | "balanced" | "strong" | "bold";
 
 export type Roast = "light" | "medium" | "dark";
@@ -40,6 +42,7 @@ export type RecipeOutput = {
 export type SavedRecipe = {
   id: string;
   name: string;
+  method: BrewMethod;
   strength: Strength;
   press: PressSize;
   grind: Grind;

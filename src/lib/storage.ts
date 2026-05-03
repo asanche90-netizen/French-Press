@@ -13,7 +13,10 @@ export function getSavedRecipes(): SavedRecipe[] {
     const raw = localStorage.getItem(RECIPES_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as SavedRecipe[]) : [];
+    if (!Array.isArray(parsed)) return [];
+    // Forward-compat: recipes saved before BrewMethod existed have no method
+    // field. Treat them as French press so they keep loading cleanly.
+    return parsed.map((r) => ({ method: "french-press", ...r })) as SavedRecipe[];
   } catch {
     return [];
   }
