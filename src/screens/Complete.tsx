@@ -1,79 +1,32 @@
 import { useEffect, useState } from "react";
-import type {
-  BrewMethod,
-  Grind,
-  PressSize,
-  RecipeOutput,
-  Roast,
-  SavedRecipe,
-  Strength,
-  Unit,
-} from "../lib/types";
 import SaveRecipeModal from "../components/SaveRecipeModal";
-import { saveRecipe } from "../lib/storage";
-import { configSummary } from "../lib/format";
 
-type Screen = "home" | "brew" | "complete";
+type Screen = "method-select" | "home" | "brew" | "complete";
+
+export type RecapRow = {
+  label: string;
+  value: string;
+  mono?: boolean;
+};
+
+type SaveProps =
+  | {
+      canSave: false;
+    }
+  | {
+      canSave: true;
+      saveSummary: string;
+      onSave: (name: string) => void;
+    };
 
 type Props = {
-  recipe: RecipeOutput;
-  unit: Unit;
-  method: BrewMethod;
-  strength: Strength;
-  press: PressSize;
-  grind: Grind;
-  roast: Roast;
+  recap: RecapRow[];
+  summary: string;
   onNavigate: (screen: Screen) => void;
-};
+} & SaveProps;
 
-const STRENGTH_LABEL: Record<Strength, string> = {
-  weak: "Weak",
-  mild: "Mild",
-  balanced: "Balanced",
-  strong: "Strong",
-  bold: "Bold",
-};
-
-const GRIND_LABEL: Record<Grind, string> = {
-  "extra-fine": "Extra fine",
-  fine: "Fine",
-  medium: "Medium",
-  coarse: "Coarse",
-  "extra-coarse": "Extra coarse",
-};
-
-const ROAST_LABEL: Record<Roast, string> = {
-  light: "Light",
-  medium: "Medium",
-  dark: "Dark",
-};
-
-const PRESS_LABEL: Record<PressSize["preset"], string> = {
-  small: "Small",
-  standard: "Standard",
-  large: "Large",
-};
-
-function formatTime(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function formatCoffeeG(g: number) {
-  return g.toFixed(1).replace(/\.0$/, "");
-}
-
-export default function Complete({
-  recipe,
-  unit,
-  method,
-  strength,
-  press,
-  grind,
-  roast,
-  onNavigate,
-}: Props) {
+export default function Complete(props: Props) {
+  const { recap, summary, onNavigate } = props;
   const [saveOpen, setSaveOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -83,35 +36,12 @@ export default function Complete({
     return () => clearTimeout(id);
   }, [toast]);
 
-  const saveSummary = configSummary({ roast, strength, press, grind }, unit);
-
-  const handleSaveRecipe = (name: string) => {
-    const recipe: SavedRecipe = {
-      id: crypto.randomUUID(),
-      name,
-      method,
-      strength,
-      press,
-      grind,
-      roast,
-      createdAt: Date.now(),
-    };
-    saveRecipe(recipe);
+  const handleSave = (name: string) => {
+    if (!props.canSave) return;
+    props.onSave(name);
     setSaveOpen(false);
     setToast(`Saved “${name}”`);
   };
-
-  const isMetric = unit === "metric";
-  const coffeeDisplay = isMetric
-    ? `${formatCoffeeG(recipe.coffeeG)} g`
-    : `${recipe.coffeeTbsp} tbsp`;
-  const waterDisplay = isMetric
-    ? `${recipe.waterMl} ml`
-    : `${recipe.waterOz} fl oz`;
-  const tempDisplay = isMetric ? `${recipe.tempC}°C` : `${recipe.tempF}°F`;
-  const steepDisplay = formatTime(recipe.steepSec);
-
-  const summary = `${STRENGTH_LABEL[strength]} · ${PRESS_LABEL[press.preset]} · ${GRIND_LABEL[grind]} grind · ${ROAST_LABEL[roast]} roast`;
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
@@ -128,9 +58,7 @@ export default function Complete({
               <h1 className="text-4xl font-light tracking-tight text-ink">
                 Enjoy.
               </h1>
-              <p className="text-sm text-muted">
-                Decant now to avoid over-extraction.
-              </p>
+              <p className="text-sm text-muted">Brew complete.</p>
             </div>
           </div>
 
@@ -139,22 +67,24 @@ export default function Complete({
               Recipe
             </span>
             <div className="flex flex-col gap-3 text-left">
-              <RecapRow label="Coffee" value={coffeeDisplay} />
-              <RecapRow label="Water" value={`${waterDisplay} at ${tempDisplay}`} />
-              <RecapRow label="Steep" value={steepDisplay} mono />
+              {recap.map((r) => (
+                <RecapRowView key={r.label} {...r} />
+              ))}
             </div>
             <p className="pt-2 text-xs text-muted">{summary}</p>
           </div>
         </main>
 
         <footer className="flex flex-col items-center gap-3 py-6">
-          <button
-            type="button"
-            onClick={() => setSaveOpen(true)}
-            className="w-full rounded-full bg-ink py-4 text-base font-medium text-cream hover:opacity-90"
-          >
-            Save recipe
-          </button>
+          {props.canSave && (
+            <button
+              type="button"
+              onClick={() => setSaveOpen(true)}
+              className="w-full rounded-full bg-ink py-4 text-base font-medium text-cream hover:opacity-90"
+            >
+              Save recipe
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onNavigate("brew")}
@@ -172,12 +102,14 @@ export default function Complete({
         </footer>
       </div>
 
-      <SaveRecipeModal
-        open={saveOpen}
-        summary={saveSummary}
-        onCancel={() => setSaveOpen(false)}
-        onSave={handleSaveRecipe}
-      />
+      {props.canSave && (
+        <SaveRecipeModal
+          open={saveOpen}
+          summary={props.saveSummary}
+          onCancel={() => setSaveOpen(false)}
+          onSave={handleSave}
+        />
+      )}
 
       {toast && (
         <div
@@ -194,7 +126,7 @@ export default function Complete({
   );
 }
 
-function RecapRow({
+function RecapRowView({
   label,
   value,
   mono = false,
