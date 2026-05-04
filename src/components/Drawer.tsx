@@ -18,6 +18,11 @@ type Props<T extends string> = {
   activeValue: T;
   onSelect: (value: T) => void;
   onClose: () => void;
+  // How to indicate the active option. Default "dot" — small accent dot at
+  // the right edge. "row" — fill the entire row with the accent color and
+  // flip the foreground to cream. Used by the grind drawer because the
+  // dot-scale rightAdornment conflicts visually with the right-side dot.
+  selectedVariant?: "dot" | "row";
 };
 
 export default function Drawer<T extends string>({
@@ -27,6 +32,7 @@ export default function Drawer<T extends string>({
   activeValue,
   onSelect,
   onClose,
+  selectedVariant = "dot",
 }: Props<T>) {
   useEffect(() => {
     if (!open) return;
@@ -65,17 +71,23 @@ export default function Drawer<T extends string>({
         <ul className="divide-y divide-hairline border-t border-hairline">
           {options.map((opt) => {
             const isActive = opt.value === activeValue;
+            const useRowFill = selectedVariant === "row" && isActive;
+            const rowClasses = useRowFill
+              ? "bg-accent text-cream hover:bg-accent"
+              : isActive
+                ? "text-accent"
+                : "text-ink";
+            const subTextClass = useRowFill ? "text-cream/90" : "text-muted";
             return (
               <li key={opt.value}>
                 <button
                   type="button"
+                  data-active={isActive ? "true" : "false"}
                   onClick={() => {
                     onSelect(opt.value);
                     onClose();
                   }}
-                  className={`flex w-full items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-hairline/30 ${
-                    isActive ? "text-accent" : "text-ink"
-                  }`}
+                  className={`group flex w-full items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-hairline/30 ${rowClasses}`}
                 >
                   {opt.leftAdornment && (
                     <span className="shrink-0">{opt.leftAdornment}</span>
@@ -83,12 +95,12 @@ export default function Drawer<T extends string>({
                   <span className="flex-1">
                     <span className="block font-medium">{opt.label}</span>
                     {opt.secondary && (
-                      <span className="block text-sm text-muted">
+                      <span className={`block text-sm ${subTextClass}`}>
                         {opt.secondary}
                       </span>
                     )}
                     {opt.note && (
-                      <span className="block text-xs text-muted">
+                      <span className={`block text-xs ${subTextClass}`}>
                         {opt.note}
                       </span>
                     )}
@@ -96,7 +108,7 @@ export default function Drawer<T extends string>({
                   {opt.rightAdornment && (
                     <span className="shrink-0">{opt.rightAdornment}</span>
                   )}
-                  {isActive && (
+                  {isActive && selectedVariant === "dot" && (
                     <span
                       className="h-2 w-2 shrink-0 rounded-full bg-accent"
                       aria-hidden="true"

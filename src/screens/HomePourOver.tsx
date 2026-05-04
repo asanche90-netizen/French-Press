@@ -188,7 +188,9 @@ function GrindDots({ filled }: { filled: number }) {
         <span
           key={i}
           className={`h-2 w-2 rounded-full ${
-            i < filled ? "bg-ink" : "bg-hairline"
+            i < filled
+              ? "bg-ink group-data-[active=true]:bg-cream"
+              : "bg-hairline group-data-[active=true]:bg-cream/40"
           }`}
         />
       ))}
@@ -428,6 +430,7 @@ export default function HomePourOver({
         activeValue={grind}
         onSelect={setGrind}
         onClose={() => setOpenDrawer(null)}
+        selectedVariant="row"
       />
 
       <OneOhOneOverlay

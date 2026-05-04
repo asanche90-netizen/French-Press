@@ -146,7 +146,9 @@ function Dots({ filled, total = 5 }: { filled: number; total?: number }) {
         <span
           key={i}
           className={`h-2 w-2 rounded-full ${
-            i < filled ? "bg-ink" : "bg-hairline"
+            i < filled
+              ? "bg-ink group-data-[active=true]:bg-cream"
+              : "bg-hairline group-data-[active=true]:bg-cream/40"
           }`}
         />
       ))}
@@ -402,6 +404,7 @@ export default function Home({
         activeValue={grind}
         onSelect={setGrind}
         onClose={() => setOpenDrawer(null)}
+        selectedVariant="row"
       />
       <Drawer
         open={openDrawer === "roast"}
