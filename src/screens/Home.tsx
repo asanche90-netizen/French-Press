@@ -241,30 +241,42 @@ export default function Home({
     <div className="min-h-dvh bg-cream text-ink">
       <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
         <header className="flex items-center justify-between py-3">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label="Back to method picker"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-hairline/40 hover:text-ink"
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back to method picker"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-hairline/40 hover:text-ink"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M10 12L6 8L10 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <div className="inline-flex rounded-full border border-hairline p-0.5 text-xs">
+              <path
+                d="M10 12L6 8L10 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <h1 className="text-sm font-medium tracking-wide text-ink">
+            {METHOD_LABEL[method]}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setOneOhOneOpen(true)}
+            className="text-sm text-muted transition-colors hover:text-ink"
+          >
+            101
+          </button>
+        </header>
+
+        <main className="flex flex-col gap-4">
+          <div className="mt-2 inline-flex w-fit rounded-full border border-hairline p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setUnit("metric")}
@@ -283,22 +295,9 @@ export default function Home({
             >
               Imperial
             </button>
-            </div>
           </div>
-          <h1 className="text-sm font-medium tracking-wide text-ink">
-            {METHOD_LABEL[method]}
-          </h1>
-          <button
-            type="button"
-            onClick={() => setOneOhOneOpen(true)}
-            className="text-sm text-muted transition-colors hover:text-ink"
-          >
-            101
-          </button>
-        </header>
 
-        <main className="flex flex-col gap-4">
-          <section className="mt-2 flex flex-col gap-1 pb-2">
+          <section className="flex flex-col gap-1 pb-2">
             <OutputRow
               label="Coffee"
               primary={
