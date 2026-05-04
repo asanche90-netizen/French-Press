@@ -457,7 +457,8 @@ function PourOverFlow({
   }
   if (screen === "complete") {
     const isMetric = unit === "metric";
-    const totalSec = recipe.bloomSec + 45 + 45 + recipe.drainSec;
+    // Brew window: bloom + two intermediate pours + final-pour drain.
+    const totalSec = recipe.bloomSec + 30 + 30 + recipe.drainSec;
     const recap: RecapRow[] = [
       {
         label: "Coffee",

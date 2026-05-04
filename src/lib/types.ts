@@ -53,13 +53,14 @@ export type PourOverOutput = {
   tempC: number;
   tempF: number;
   bloomMl: number;
+  bloomOz: number;
   bloomSec: number;
-  pour1Ml: number;
-  pour1Oz: number;
   pour2Ml: number;
   pour2Oz: number;
   pour3Ml: number;
   pour3Oz: number;
+  pour4Ml: number;
+  pour4Oz: number;
   drainSec: number;
 };
 

@@ -122,6 +122,7 @@ export function buildPourOverSteps(
   roast: Roast,
 ): Step[] {
   const temp = tempLabel(recipe.tempC, recipe.tempF, unit);
+  const coffeeG = formatCoffeeG(recipe.coffeeG);
 
   return [
     {
@@ -135,44 +136,52 @@ export function buildPourOverSteps(
     {
       id: "rinse-filter",
       name: "Rinse filter",
-      title: "Rinse your filter.",
-      subtitle: "Pour through to warm the dripper.",
+      title: "Rinse filter.",
+      subtitle: "Pour hot water through the filter into your carafe.",
       duration: 15,
+    },
+    {
+      id: "discard-rinse",
+      name: "Discard rinse",
+      title: "Discard rinse water.",
+      subtitle:
+        "Pour out the rinse water from your carafe. This removes papery taste and keeps your brew temperature stable.",
+      duration: 0,
     },
     {
       id: "add-coffee",
       name: "Add coffee",
       title: "Add coffee.",
-      subtitle: `${formatCoffeeG(recipe.coffeeG)}g, medium-fine grind.`,
+      subtitle: `Add ${coffeeG}g of medium-fine ground coffee. Shake gently to level the bed.`,
       duration: 0,
     },
     {
       id: "bloom",
       name: "Bloom",
       title: "Bloom pour.",
-      subtitle: `Pour ${mlOrOz(recipe.bloomMl, unit)} to saturate.`,
-      duration: recipe.bloomSec,
-    },
-    {
-      id: "pour-1",
-      name: "First pour",
-      title: "First pour.",
-      subtitle: `Add ${mlOrOz(recipe.pour1Ml, unit)} in spirals.`,
+      subtitle: `Pour ${recipe.bloomMl}g of water in a slow circle. Make sure all grounds are saturated.`,
       duration: 45,
     },
     {
       id: "pour-2",
       name: "Second pour",
       title: "Second pour.",
-      subtitle: `Add ${mlOrOz(recipe.pour2Ml, unit)} steadily.`,
-      duration: 45,
+      subtitle: `Pour ${recipe.pour2Ml}g of water slowly in circles. Avoid the edges of the filter.`,
+      duration: 30,
     },
     {
       id: "pour-3",
+      name: "Third pour",
+      title: "Third pour.",
+      subtitle: `Pour ${recipe.pour3Ml}g of water in the same pattern.`,
+      duration: 30,
+    },
+    {
+      id: "pour-4",
       name: "Final pour",
       title: "Final pour.",
-      subtitle: `Add ${mlOrOz(recipe.pour3Ml, unit)}. Let drain.`,
-      duration: recipe.drainSec,
+      subtitle: `Add remaining ${recipe.pour4Ml}g of water and allow to drain fully.`,
+      duration: 45,
     },
     {
       // Terminal sentinel: navigates to Complete instead of displaying.

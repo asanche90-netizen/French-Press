@@ -181,7 +181,8 @@ export default function HomePourOver({
   const waterOptions = useMemo(() => waterOptionsFor(unit), [unit]);
 
   // Total brew time: bloom + 2 timed pours + drain
-  const totalSec = recipe.bloomSec + 45 + 45 + recipe.drainSec;
+  // Brew window: bloom + two intermediate pours + final-pour drain.
+  const totalSec = recipe.bloomSec + 30 + 30 + recipe.drainSec;
 
   return (
     <div className="min-h-dvh bg-cream text-ink">
