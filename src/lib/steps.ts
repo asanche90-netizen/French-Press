@@ -231,8 +231,11 @@ export function buildDripSteps(recipe: DripOutput, unit: Unit): Step[] {
       id: "brew",
       name: "Brew",
       title: "Start your machine.",
-      subtitle: "Let it run until the carafe is full.",
-      duration: recipe.brewSec,
+      // The user can't control how long the machine takes, so this is a
+      // tap-next-when-ready step rather than a countdown.
+      subtitle:
+        "Start your machine and wait for the brew cycle to complete. Most machines take 4–6 minutes — your machine will signal when it's done.",
+      duration: 0,
     },
     {
       // Terminal sentinel: navigates to Complete instead of displaying.
