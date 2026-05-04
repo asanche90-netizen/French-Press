@@ -12,6 +12,7 @@ import type {
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
 import { FRENCH_PRESS_CARDS } from "../components/oneOhOneCards";
+import TipCallout from "../components/TipCallout";
 import { tempTip } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
@@ -454,7 +455,7 @@ function OutputRow({
           <span className="text-base text-muted">{primaryUnit}</span>
         )}
       </div>
-      {tip && <p className="text-xs text-muted">{tip}</p>}
+      {tip && <TipCallout>{tip}</TipCallout>}
     </div>
   );
 }

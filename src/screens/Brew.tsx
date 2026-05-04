@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Step } from "../lib/steps";
+import TipCallout from "../components/TipCallout";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
 
@@ -175,9 +176,7 @@ export default function Brew({ steps, onNavigate }: Props) {
               {step.title}
             </h1>
             <p className="text-sm text-muted">{subtitle}</p>
-            {step.tip && (
-              <p className="text-xs text-muted">{step.tip}</p>
-            )}
+            {step.tip && <TipCallout>{step.tip}</TipCallout>}
           </div>
 
           {isTimedStep ? (
