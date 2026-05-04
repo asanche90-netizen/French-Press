@@ -353,8 +353,8 @@ function FrenchPressFlow({
   onOpenSavedRecipes,
 }: FrenchPressFlowProps) {
   const steps = useMemo<Step[]>(
-    () => buildFrenchPressSteps(recipe, unit),
-    [recipe, unit],
+    () => buildFrenchPressSteps(recipe, unit, roast),
+    [recipe, unit, roast],
   );
 
   if (screen === "brew") {

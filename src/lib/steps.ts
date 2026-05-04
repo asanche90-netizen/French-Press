@@ -44,46 +44,65 @@ function formatCoffeeG(g: number): string {
 export function buildFrenchPressSteps(
   recipe: RecipeOutput,
   unit: Unit,
+  roast: Roast,
 ): Step[] {
+  const temp = tempLabel(recipe.tempC, recipe.tempF, unit);
   const bloomStr = mlOrOz(recipe.bloomMl, unit);
-  const waterStr =
-    unit === "metric" ? `${recipe.waterMl} ml` : `${recipe.waterOz} fl oz`;
+  // remainingMl = waterMl - bloomMl (computed here, not in recipe.ts)
+  const remainingStr = mlOrOz(recipe.waterMl - recipe.bloomMl, unit);
+  const coffeeG = formatCoffeeG(recipe.coffeeG);
+  const coffeeTbsp = recipe.coffeeTbsp;
 
   return [
+    {
+      id: "heat-water",
+      name: "Heat water",
+      title: "Heat water.",
+      subtitle: `Bring water to ${temp}.`,
+      tip: tempTip(roast),
+      duration: 0,
+    },
+    {
+      id: "rinse-press",
+      name: "Rinse press",
+      title: "Rinse and warm your press.",
+      subtitle:
+        "Pour a small amount of hot water into the press, swirl, and discard.",
+      duration: 0,
+    },
+    {
+      id: "add-coffee",
+      name: "Add coffee",
+      title: "Add coffee.",
+      subtitle: `Add ${coffeeG}g (${coffeeTbsp} tbsp) of coarsely ground coffee.`,
+      duration: 0,
+    },
     {
       id: "bloom-pour",
       name: "Pour bloom water",
       title: "Pour bloom water.",
-      subtitle: `Pour ${bloomStr} slowly over grounds.`,
-      duration: 10,
-    },
-    {
-      id: "bloom",
-      name: "Bloom",
-      title: "Bloom.",
-      subtitle: "Swirl gently. CO₂ is releasing.",
-      duration: 45,
+      subtitle: `Pour ${bloomStr} over grounds in a slow circle. Stir gently to saturate all grounds.`,
+      duration: 30,
     },
     {
       id: "pour-remaining",
       name: "Pour remaining water",
       title: "Pour remaining water.",
-      subtitle: `Top up to ${waterStr} in a spiral.`,
+      subtitle: `Pour remaining ${remainingStr} slowly over the grounds.`,
       duration: 15,
     },
     {
       id: "steep",
       name: "Steep",
       title: "Steep.",
-      subtitle: "Lid on. Plunger up. Wait.",
-      midSubtitle: "Break the crust, skim the foam.",
-      duration: Math.max(0, recipe.steepSec - 70),
+      subtitle: "Place the plunger lightly on top to cover. Do not press yet.",
+      duration: recipe.steepSec,
     },
     {
       id: "press",
       name: "Press",
       title: "Press.",
-      subtitle: "Slow and steady, about 20 seconds.",
+      subtitle: "Press the plunger down slowly and steadily.",
       duration: 20,
     },
     {
