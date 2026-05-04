@@ -1,11 +1,25 @@
 import type {
   DripOutput,
+  Grind,
   PourOverOutput,
   RecipeOutput,
   Roast,
   Unit,
 } from "./types";
 import { tempTip } from "./format";
+
+// Lowercase, sentence-friendly form for inline interpolation in step
+// subtitles. The Title-Case version in lib/format.ts is used elsewhere
+// for standalone labels.
+const GRIND_INLINE_LABEL: Record<Grind, string> = {
+  "extra-fine": "extra fine",
+  fine: "fine",
+  "medium-fine": "medium fine",
+  medium: "medium",
+  "medium-coarse": "medium coarse",
+  coarse: "coarse",
+  "extra-coarse": "extra coarse",
+};
 
 // A brew step shown on the Brew screen. Steps with duration 0 render with no
 // active timer; the user advances them with the Next button. The LAST step
@@ -45,6 +59,7 @@ export function buildFrenchPressSteps(
   recipe: RecipeOutput,
   unit: Unit,
   roast: Roast,
+  grind: Grind,
 ): Step[] {
   const temp = tempLabel(recipe.tempC, recipe.tempF, unit);
   const bloomStr = mlOrOz(recipe.bloomMl, unit);
@@ -52,6 +67,7 @@ export function buildFrenchPressSteps(
   const remainingStr = mlOrOz(recipe.waterMl - recipe.bloomMl, unit);
   const coffeeG = formatCoffeeG(recipe.coffeeG);
   const coffeeTbsp = recipe.coffeeTbsp;
+  const grindLabel = GRIND_INLINE_LABEL[grind];
 
   return [
     {
@@ -74,7 +90,7 @@ export function buildFrenchPressSteps(
       id: "add-coffee",
       name: "Add coffee",
       title: "Add coffee.",
-      subtitle: `Add ${coffeeG}g (${coffeeTbsp} tbsp) of coarsely ground coffee.`,
+      subtitle: `Add ${coffeeG}g (${coffeeTbsp} tbsp) of ${grindLabel} ground coffee.`,
       duration: 0,
     },
     {
