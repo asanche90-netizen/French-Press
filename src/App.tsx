@@ -84,6 +84,10 @@ export default function App() {
   const [grind, setGrind] = useState<Grind>("coarse");
   const [roast, setRoast] = useState<Roast>("medium");
   const [waterMl, setWaterMl] = useState<number>(DEFAULT_WATER_ML);
+  // Pour over uses its own grind state because its valid range (5 of the 7
+  // grind values) differs from French press, and selections shouldn't bleed
+  // across methods.
+  const [pourOverGrind, setPourOverGrind] = useState<Grind>("medium-fine");
   const [unit, setUnit] = useState<Unit>(() => getUnitPreference());
 
   // Cross-method save UI state lives here so it doesn't reset when the
@@ -249,9 +253,11 @@ export default function App() {
         strength={strength}
         roast={roast}
         waterMl={waterMl}
+        grind={pourOverGrind}
         setStrength={setStrength}
         setRoast={setRoast}
         setWaterMl={setWaterMl}
+        setGrind={setPourOverGrind}
         setUnit={setUnit}
         onBack={goBackToMethodSelect}
         onOpenSave={openSave}
@@ -425,9 +431,11 @@ type PourOverFlowProps = {
   strength: Strength;
   roast: Roast;
   waterMl: number;
+  grind: Grind;
   setStrength: (s: Strength) => void;
   setRoast: (r: Roast) => void;
   setWaterMl: (ml: number) => void;
+  setGrind: (g: Grind) => void;
   setUnit: (u: Unit) => void;
   onBack: () => void;
   onOpenSave: () => void;
@@ -443,9 +451,11 @@ function PourOverFlow({
   strength,
   roast,
   waterMl,
+  grind,
   setStrength,
   setRoast,
   setWaterMl,
+  setGrind,
   setUnit,
   onBack,
   onOpenSave,
@@ -498,11 +508,13 @@ function PourOverFlow({
       waterMl={waterMl}
       roast={roast}
       strength={strength}
+      grind={grind}
       unit={unit}
       recipe={recipe}
       setWaterMl={setWaterMl}
       setRoast={setRoast}
       setStrength={setStrength}
+      setGrind={setGrind}
       setUnit={setUnit}
       onNavigate={setScreen}
       onBack={onBack}

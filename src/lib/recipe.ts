@@ -30,7 +30,9 @@ const BASE_STEEP_SEC: Record<Roast, number> = {
 const GRIND_ADJUST_SEC: Record<Grind, number> = {
   "extra-fine": -90,
   fine: -60,
+  "medium-fine": -45,
   medium: -30,
+  "medium-coarse": -15,
   coarse: 0,
   "extra-coarse": 30,
 };

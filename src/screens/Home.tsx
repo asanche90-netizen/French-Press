@@ -57,11 +57,44 @@ const STRENGTH_LABEL: Record<Strength, string> = {
 };
 
 const GRIND_LABEL: Record<Grind, string> = {
-  "extra-fine": "Extra fine",
+  "extra-fine": "Extra Fine",
   fine: "Fine",
+  "medium-fine": "Medium Fine",
   medium: "Medium",
+  "medium-coarse": "Medium Coarse",
   coarse: "Coarse",
-  "extra-coarse": "Extra coarse",
+  "extra-coarse": "Extra Coarse",
+};
+
+// Position on the seven-step grind scale. Used to fill the Dots indicator
+// in the Drawer so visual scale stays consistent across methods.
+const GRIND_INDEX: Record<Grind, number> = {
+  "extra-fine": 1,
+  fine: 2,
+  "medium-fine": 3,
+  medium: 4,
+  "medium-coarse": 5,
+  coarse: 6,
+  "extra-coarse": 7,
+};
+
+const FRENCH_PRESS_GRINDS: Grind[] = [
+  "extra-fine",
+  "fine",
+  "medium-fine",
+  "medium",
+  "medium-coarse",
+  "coarse",
+  "extra-coarse",
+];
+
+// Roast-driven grind suggestion. Lighter roasts dissolve more slowly so they
+// like a slightly finer grind; darker roasts dissolve faster and want it
+// coarser. Purely a hint — the user's selection is never overridden.
+const FRENCH_PRESS_RECOMMENDED_GRIND: Record<Roast, Grind> = {
+  light: "medium-coarse",
+  medium: "coarse",
+  dark: "extra-coarse",
 };
 
 const ROAST_LABEL: Record<Roast, string> = {
@@ -121,13 +154,15 @@ function Dots({ filled, total = 5 }: { filled: number; total?: number }) {
   );
 }
 
-const grindOptions: DrawerOption<Grind>[] = [
-  { value: "extra-fine", label: "Extra fine", rightAdornment: <Dots filled={1} /> },
-  { value: "fine", label: "Fine", rightAdornment: <Dots filled={2} /> },
-  { value: "medium", label: "Medium", rightAdornment: <Dots filled={3} /> },
-  { value: "coarse", label: "Coarse", rightAdornment: <Dots filled={4} /> },
-  { value: "extra-coarse", label: "Extra coarse", rightAdornment: <Dots filled={5} /> },
-];
+function frenchPressGrindOptions(roast: Roast): DrawerOption<Grind>[] {
+  const recommended = FRENCH_PRESS_RECOMMENDED_GRIND[roast];
+  return FRENCH_PRESS_GRINDS.map((g) => ({
+    value: g,
+    label: GRIND_LABEL[g],
+    note: g === recommended ? "Recommended for your roast" : undefined,
+    rightAdornment: <Dots filled={GRIND_INDEX[g]} total={7} />,
+  }));
+}
 
 function RoastDot({ color }: { color: string }) {
   return (
@@ -198,6 +233,7 @@ export default function Home({
     [isMetric],
   );
   const pressOptions = useMemo(() => pressOptionsFor(unit), [unit]);
+  const grindOptions = useMemo(() => frenchPressGrindOptions(roast), [roast]);
 
   return (
     <div className="min-h-dvh bg-cream text-ink">

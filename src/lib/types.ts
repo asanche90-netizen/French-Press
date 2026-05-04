@@ -7,7 +7,9 @@ export type Roast = "light" | "medium" | "dark";
 export type Grind =
   | "extra-fine"
   | "fine"
+  | "medium-fine"
   | "medium"
+  | "medium-coarse"
   | "coarse"
   | "extra-coarse";
 

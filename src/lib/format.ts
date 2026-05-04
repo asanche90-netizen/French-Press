@@ -9,11 +9,13 @@ const STRENGTH_LABEL: Record<Strength, string> = {
 };
 
 const GRIND_LABEL: Record<Grind, string> = {
-  "extra-fine": "Extra fine",
+  "extra-fine": "Extra Fine",
   fine: "Fine",
+  "medium-fine": "Medium Fine",
   medium: "Medium",
+  "medium-coarse": "Medium Coarse",
   coarse: "Coarse",
-  "extra-coarse": "Extra coarse",
+  "extra-coarse": "Extra Coarse",
 };
 
 const ROAST_LABEL: Record<Roast, string> = {

@@ -4,6 +4,9 @@ export type DrawerOption<T extends string> = {
   value: T;
   label: string;
   secondary?: string;
+  // Smaller muted hint, sized to match in-app helper notes (e.g.
+  // the thermometer tip under Water temp). Renders below `secondary`.
+  note?: string;
   leftAdornment?: ReactNode;
   rightAdornment?: ReactNode;
 };
@@ -82,6 +85,11 @@ export default function Drawer<T extends string>({
                     {opt.secondary && (
                       <span className="block text-sm text-muted">
                         {opt.secondary}
+                      </span>
+                    )}
+                    {opt.note && (
+                      <span className="block text-xs text-muted">
+                        {opt.note}
                       </span>
                     )}
                   </span>

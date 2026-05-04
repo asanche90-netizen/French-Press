@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type {
   BrewMethod,
+  Grind,
   PourOverOutput,
   Roast,
   Strength,
@@ -18,11 +19,13 @@ type Props = {
   waterMl: number;
   roast: Roast;
   strength: Strength;
+  grind: Grind;
   unit: Unit;
   recipe: PourOverOutput;
   setWaterMl: (ml: number) => void;
   setRoast: (r: Roast) => void;
   setStrength: (s: Strength) => void;
+  setGrind: (g: Grind) => void;
   setUnit: (u: Unit) => void;
   onNavigate: (s: Screen) => void;
   onBack: () => void;
@@ -30,7 +33,7 @@ type Props = {
   onOpenSavedRecipes: () => void;
 };
 
-type DrawerKey = null | "water" | "strength" | "roast";
+type DrawerKey = null | "water" | "strength" | "roast" | "grind";
 
 const METHOD_LABEL: Record<BrewMethod, string> = {
   "french-press": "French Press",
@@ -50,6 +53,41 @@ const ROAST_LABEL: Record<Roast, string> = {
   light: "Light",
   medium: "Medium",
   dark: "Dark",
+};
+
+const GRIND_LABEL: Record<Grind, string> = {
+  "extra-fine": "Extra Fine",
+  fine: "Fine",
+  "medium-fine": "Medium Fine",
+  medium: "Medium",
+  "medium-coarse": "Medium Coarse",
+  coarse: "Coarse",
+  "extra-coarse": "Extra Coarse",
+};
+
+const GRIND_INDEX: Record<Grind, number> = {
+  "extra-fine": 1,
+  fine: 2,
+  "medium-fine": 3,
+  medium: 4,
+  "medium-coarse": 5,
+  coarse: 6,
+  "extra-coarse": 7,
+};
+
+// Pour over uses a restricted range — the two extremes don't suit the method.
+const POUR_OVER_GRINDS: Grind[] = [
+  "fine",
+  "medium-fine",
+  "medium",
+  "medium-coarse",
+  "coarse",
+];
+
+const POUR_OVER_RECOMMENDED_GRIND: Record<Roast, Grind> = {
+  light: "medium-fine",
+  medium: "medium",
+  dark: "medium-coarse",
 };
 
 const STRENGTH_OPTIONS_METRIC: DrawerOption<Strength>[] = [
@@ -143,6 +181,31 @@ function waterOptionsFor(unit: Unit): DrawerOption<WaterPreset>[] {
   ];
 }
 
+function GrindDots({ filled }: { filled: number }) {
+  return (
+    <span className="flex gap-1" aria-hidden="true">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <span
+          key={i}
+          className={`h-2 w-2 rounded-full ${
+            i < filled ? "bg-ink" : "bg-hairline"
+          }`}
+        />
+      ))}
+    </span>
+  );
+}
+
+function pourOverGrindOptions(roast: Roast): DrawerOption<Grind>[] {
+  const recommended = POUR_OVER_RECOMMENDED_GRIND[roast];
+  return POUR_OVER_GRINDS.map((g) => ({
+    value: g,
+    label: GRIND_LABEL[g],
+    note: g === recommended ? "Recommended for your roast" : undefined,
+    rightAdornment: <GrindDots filled={GRIND_INDEX[g]} />,
+  }));
+}
+
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
@@ -158,11 +221,13 @@ export default function HomePourOver({
   waterMl,
   roast,
   strength,
+  grind,
   unit,
   recipe,
   setWaterMl,
   setRoast,
   setStrength,
+  setGrind,
   setUnit,
   onNavigate,
   onBack,
@@ -180,6 +245,7 @@ export default function HomePourOver({
     [isMetric],
   );
   const waterOptions = useMemo(() => waterOptionsFor(unit), [unit]);
+  const grindOptions = useMemo(() => pourOverGrindOptions(roast), [roast]);
 
   // Total brew time: bloom + 2 timed pours + drain
   // Brew window: bloom + two intermediate pours + final-pour drain.
@@ -295,11 +361,12 @@ export default function HomePourOver({
               value={ROAST_LABEL[roast]}
               onClick={() => setOpenDrawer("roast")}
             />
+            <InputRow
+              label="Grind"
+              value={GRIND_LABEL[grind]}
+              onClick={() => setOpenDrawer("grind")}
+            />
           </section>
-
-          <p className="px-1 text-xs text-muted">
-            Grind medium-fine, like table salt.
-          </p>
 
           <div className="mt-2 flex flex-col items-center gap-3">
             <button
@@ -352,6 +419,14 @@ export default function HomePourOver({
         options={roastOptions}
         activeValue={roast}
         onSelect={setRoast}
+        onClose={() => setOpenDrawer(null)}
+      />
+      <Drawer
+        open={openDrawer === "grind"}
+        title="Grind size"
+        options={grindOptions}
+        activeValue={grind}
+        onSelect={setGrind}
         onClose={() => setOpenDrawer(null)}
       />
 
