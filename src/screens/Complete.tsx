@@ -63,14 +63,14 @@ export default function Complete({
           )}
           <button
             type="button"
-            onClick={() => onNavigate("brew")}
+            onClick={() => onNavigate("home")}
             className="py-1 text-sm text-ink underline-offset-4 hover:underline"
           >
             Brew again
           </button>
           <button
             type="button"
-            onClick={() => onNavigate("home")}
+            onClick={() => onNavigate("method-select")}
             className="py-1 text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
           >
             Home
