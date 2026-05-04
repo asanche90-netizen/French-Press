@@ -18,10 +18,9 @@ type Props<T extends string> = {
   activeValue: T;
   onSelect: (value: T) => void;
   onClose: () => void;
-  // How to indicate the active option. Default "dot" — small accent dot at
-  // the right edge. "row" — fill the entire row with the accent color and
-  // flip the foreground to cream. Used by the grind drawer because the
-  // dot-scale rightAdornment conflicts visually with the right-side dot.
+  // How to indicate the active option. Default "row" — full-width accent
+  // fill with cream foreground. "dot" — small accent dot at the right
+  // edge (kept available for future use, currently unused).
   selectedVariant?: "dot" | "row";
 };
 
@@ -32,7 +31,7 @@ export default function Drawer<T extends string>({
   activeValue,
   onSelect,
   onClose,
-  selectedVariant = "dot",
+  selectedVariant = "row",
 }: Props<T>) {
   useEffect(() => {
     if (!open) return;
