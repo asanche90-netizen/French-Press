@@ -61,7 +61,7 @@ export const FRENCH_PRESS_CARDS: CardData[] = [
 export const POUR_OVER_CARDS: CardData[] = [
   {
     headline: "What makes pour over different",
-    body: "Pour over is a manual brewing method where you control the water flow yourself. Because you're pouring in stages, you can ensure every ground is evenly saturated — which produces a clean, bright, and nuanced cup.",
+    body: "Pour over is a manual brewing method where you control the water flow yourself. Because you're pouring in stages, you can ensure every ground is evenly saturated — which produces a clean, bright, and nuanced cup. These recipes work with any cone-style pour over brewer — Hario V60, Chemex, Kalita Wave, or similar. The ratios and timing are the same regardless of brand.",
   },
   {
     headline: "The bloom",
