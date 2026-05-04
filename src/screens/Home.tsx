@@ -40,10 +40,11 @@ const METHOD_LABEL: Record<BrewMethod, string> = {
 };
 type DrawerKey = null | "strength" | "press" | "grind" | "roast";
 
-const PRESS_PRESETS: Record<"small" | "standard" | "large", PressSize> = {
+const PRESS_PRESETS: Record<PressPreset, PressSize> = {
   small: { preset: "small", ml: 350 },
   standard: { preset: "standard", ml: 500 },
   large: { preset: "large", ml: 1000 },
+  xlarge: { preset: "xlarge", ml: 1500 },
 };
 
 const STRENGTH_LABEL: Record<Strength, string> = {
@@ -72,6 +73,7 @@ const PRESS_LABEL: Record<PressPreset, string> = {
   small: "Small",
   standard: "Standard",
   large: "Large",
+  xlarge: "12 Cup",
 };
 
 const STRENGTH_OPTIONS_METRIC: DrawerOption<Strength>[] = [
@@ -99,6 +101,7 @@ function pressOptionsFor(unit: Unit): DrawerOption<PressPreset>[] {
     { value: "small", label: "Small", secondary: `2 cups · ${size(350)}` },
     { value: "standard", label: "Standard", secondary: `3 cups · ${size(500)}` },
     { value: "large", label: "Large", secondary: `6 cups · ${size(1000)}` },
+    { value: "xlarge", label: "12 Cup", secondary: `12 cups · ${size(1500)}` },
   ];
 }
 
