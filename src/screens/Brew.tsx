@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Step } from "../lib/steps";
-import TipCallout from "../components/TipCallout";
+import { TipReveal, TipToggleIcon } from "../components/TipDisclosure";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
 
@@ -57,6 +57,15 @@ export default function Brew({ steps, onNavigate }: Props) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [timerSec, setTimerSec] = useState(() => steps[0].duration);
   const [isPaused, setIsPaused] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
+  // Track which step's tip state is current so we can collapse the tip
+  // back to its default state whenever the user moves to a new step
+  // (React 18 "store previous prop" pattern — no effect needed).
+  const [tipStepKey, setTipStepKey] = useState(0);
+  if (tipStepKey !== currentStepIndex) {
+    setTipStepKey(currentStepIndex);
+    setTipOpen(false);
+  }
   const intervalRef = useRef<number | null>(null);
 
   // Refs let the interval callback read the latest values without
@@ -175,8 +184,16 @@ export default function Brew({ steps, onNavigate }: Props) {
             <h1 className="text-4xl font-light tracking-tight text-ink">
               {step.title}
             </h1>
-            <p className="text-sm text-muted">{subtitle}</p>
-            {step.tip && <TipCallout>{step.tip}</TipCallout>}
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-sm text-muted">{subtitle}</p>
+              {step.tip && (
+                <TipToggleIcon
+                  open={tipOpen}
+                  onToggle={() => setTipOpen((o) => !o)}
+                />
+              )}
+            </div>
+            {step.tip && tipOpen && <TipReveal>{step.tip}</TipReveal>}
           </div>
 
           {isTimedStep ? (

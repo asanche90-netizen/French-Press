@@ -10,7 +10,7 @@ import type {
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
 import { POUR_OVER_CARDS } from "../components/oneOhOneCards";
-import TipCallout from "../components/TipCallout";
+import { TipReveal, TipToggleIcon } from "../components/TipDisclosure";
 import { tempTip } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
@@ -456,11 +456,20 @@ function OutputRow({
   mono?: boolean;
   tip?: string;
 }) {
+  const [tipOpen, setTipOpen] = useState(false);
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs uppercase tracking-[0.15em] text-muted">
-        {label}
-      </span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs uppercase tracking-[0.15em] text-muted">
+          {label}
+        </span>
+        {tip && (
+          <TipToggleIcon
+            open={tipOpen}
+            onToggle={() => setTipOpen((o) => !o)}
+          />
+        )}
+      </div>
       <div className="flex items-baseline gap-2">
         <span
           className={`text-[64px] font-light leading-none text-ink ${
@@ -473,7 +482,7 @@ function OutputRow({
           <span className="text-base text-muted">{primaryUnit}</span>
         )}
       </div>
-      {tip && <TipCallout>{tip}</TipCallout>}
+      {tip && tipOpen && <TipReveal>{tip}</TipReveal>}
     </div>
   );
 }
