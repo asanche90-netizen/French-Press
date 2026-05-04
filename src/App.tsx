@@ -448,8 +448,8 @@ function PourOverFlow({
   onOpenSavedRecipes,
 }: PourOverFlowProps) {
   const steps = useMemo<Step[]>(
-    () => buildPourOverSteps(recipe, unit),
-    [recipe, unit],
+    () => buildPourOverSteps(recipe, unit, roast),
+    [recipe, unit, roast],
   );
 
   if (screen === "brew") {

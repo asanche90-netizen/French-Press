@@ -2,8 +2,10 @@ import type {
   DripOutput,
   PourOverOutput,
   RecipeOutput,
+  Roast,
   Unit,
 } from "./types";
+import { tempTip } from "./format";
 
 // A brew step shown on the Brew screen. Steps with duration 0 render with no
 // active timer; the user advances them with the Next button. The LAST step
@@ -17,6 +19,9 @@ export type Step = {
   // Optional alternate subtitle shown when 0 < timerSec <= duration/2. Used
   // for the French press steep "break the crust, skim the foam" prompt.
   midSubtitle?: string;
+  // Optional supplementary helper note shown under the subtitle in muted
+  // small text. Currently used by the pour-over Heat water step.
+  tip?: string;
   duration: number;
 };
 
@@ -95,6 +100,7 @@ export function buildFrenchPressSteps(
 export function buildPourOverSteps(
   recipe: PourOverOutput,
   unit: Unit,
+  roast: Roast,
 ): Step[] {
   const temp = tempLabel(recipe.tempC, recipe.tempF, unit);
 
@@ -104,6 +110,7 @@ export function buildPourOverSteps(
       name: "Heat water",
       title: "Heat water.",
       subtitle: `Bring water to ${temp}.`,
+      tip: tempTip(roast),
       duration: 0,
     },
     {

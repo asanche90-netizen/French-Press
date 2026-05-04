@@ -177,6 +177,9 @@ export default function Brew({ steps, onNavigate }: Props) {
               {step.title}
             </h1>
             <p className="text-sm text-muted">{subtitle}</p>
+            {step.tip && (
+              <p className="text-xs text-muted">{step.tip}</p>
+            )}
           </div>
 
           {isTimedStep ? (

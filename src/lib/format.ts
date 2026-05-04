@@ -30,6 +30,16 @@ export function formatPressVolume(press: PressSize, unit: Unit): string {
     : `${Math.round(press.ml * OZ_PER_ML)} fl oz`;
 }
 
+const TEMP_TIP: Record<Roast, string> = {
+  light: "No thermometer? Use water just off the boil.",
+  medium: "No thermometer? Boil water and let it rest for 1 minute.",
+  dark: "No thermometer? Boil water and let it rest for 2 minutes.",
+};
+
+export function tempTip(roast: Roast): string {
+  return TEMP_TIP[roast];
+}
+
 export function configSummary(
   config: { roast: Roast; strength: Strength; press: PressSize; grind: Grind },
   unit: Unit,

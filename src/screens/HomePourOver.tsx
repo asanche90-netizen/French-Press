@@ -8,6 +8,7 @@ import type {
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
+import { tempTip } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
 
@@ -262,6 +263,7 @@ export default function HomePourOver({
               label="Water temp"
               primary={isMetric ? recipe.tempC.toString() : recipe.tempF.toString()}
               primaryUnit={isMetric ? "°C" : "°F"}
+              tip={tempTip(roast)}
             />
             <OutputRow
               label="Total brew"
@@ -364,11 +366,13 @@ function OutputRow({
   primary,
   primaryUnit,
   mono = false,
+  tip,
 }: {
   label: string;
   primary: string;
   primaryUnit: string;
   mono?: boolean;
+  tip?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -387,6 +391,7 @@ function OutputRow({
           <span className="text-base text-muted">{primaryUnit}</span>
         )}
       </div>
+      {tip && <p className="text-xs text-muted">{tip}</p>}
     </div>
   );
 }
