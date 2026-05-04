@@ -11,6 +11,7 @@ import type {
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
+import { FRENCH_PRESS_CARDS } from "../components/oneOhOneCards";
 import { tempTip } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
@@ -378,6 +379,8 @@ export default function Home({
       <OneOhOneOverlay
         open={oneOhOneOpen}
         onClose={() => setOneOhOneOpen(false)}
+        title="French Press 101"
+        cards={FRENCH_PRESS_CARDS}
       />
     </div>
   );

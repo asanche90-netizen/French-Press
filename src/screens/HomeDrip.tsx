@@ -8,6 +8,7 @@ import type {
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
+import { DRIP_CARDS } from "../components/oneOhOneCards";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
 
@@ -334,6 +335,8 @@ export default function HomeDrip({
       <OneOhOneOverlay
         open={oneOhOneOpen}
         onClose={() => setOneOhOneOpen(false)}
+        title="Drip 101"
+        cards={DRIP_CARDS}
       />
     </div>
   );

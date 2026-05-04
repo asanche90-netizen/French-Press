@@ -8,6 +8,7 @@ import type {
 } from "../lib/types";
 import Drawer, { type DrawerOption } from "../components/Drawer";
 import OneOhOneOverlay from "../components/OneOhOneOverlay";
+import { POUR_OVER_CARDS } from "../components/oneOhOneCards";
 import { tempTip } from "../lib/format";
 
 type Screen = "method-select" | "home" | "brew" | "complete";
@@ -357,6 +358,8 @@ export default function HomePourOver({
       <OneOhOneOverlay
         open={oneOhOneOpen}
         onClose={() => setOneOhOneOpen(false)}
+        title="Pour Over 101"
+        cards={POUR_OVER_CARDS}
       />
     </div>
   );
