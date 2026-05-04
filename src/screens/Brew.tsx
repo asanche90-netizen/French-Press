@@ -151,8 +151,6 @@ export default function Brew({ steps, onNavigate }: Props) {
     return step.subtitle;
   })();
 
-  // Fraction of time remaining: 1 at start, 0 at end.
-  const progress = step.duration > 0 ? timerSec / step.duration : 0;
   const isTimedStep = step.duration > 0;
 
   return (
@@ -183,7 +181,11 @@ export default function Brew({ steps, onNavigate }: Props) {
           </div>
 
           {isTimedStep ? (
-            <TimerRing timerSec={timerSec} progress={progress} />
+            <TimerRing
+              timerSec={timerSec}
+              totalSec={step.duration}
+              isPaused={isPaused}
+            />
           ) : (
             <NoTimerSlot />
           )}
@@ -256,17 +258,59 @@ export default function Brew({ steps, onNavigate }: Props) {
 
 function TimerRing({
   timerSec,
-  progress,
+  totalSec,
+  isPaused,
 }: {
   timerSec: number;
-  progress: number;
+  totalSec: number;
+  isPaused: boolean;
 }) {
   const size = 240;
   const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const clamped = Math.min(1, Math.max(0, progress));
-  const dashOffset = circumference * (1 - clamped);
+
+  const circleRef = useRef<SVGCircleElement>(null);
+  // Anchor for the smooth sweep — reset whenever the discrete second
+  // changes (each setInterval tick) or the paused state toggles. The
+  // ring interpolates from the anchor toward the next whole-second
+  // value during the second that follows.
+  const tickStartRef = useRef(Date.now());
+
+  useEffect(() => {
+    tickStartRef.current = Date.now();
+  }, [timerSec, isPaused]);
+
+  useEffect(() => {
+    if (isPaused || totalSec === 0) return;
+
+    let rafId = 0;
+    const update = () => {
+      const circle = circleRef.current;
+      if (circle) {
+        const elapsedSec = (Date.now() - tickStartRef.current) / 1000;
+        // Cap interpolation at one second so a delayed setInterval
+        // (e.g. a backgrounded tab) can't push the ring past the next
+        // tick before timerSec catches up.
+        const remaining = Math.max(0, timerSec - Math.min(1, elapsedSec));
+        const progress = remaining / totalSec;
+        const clamped = Math.min(1, Math.max(0, progress));
+        circle.setAttribute(
+          "stroke-dashoffset",
+          String(circumference * (1 - clamped)),
+        );
+      }
+      rafId = window.requestAnimationFrame(update);
+    };
+    rafId = window.requestAnimationFrame(update);
+    return () => window.cancelAnimationFrame(rafId);
+  }, [timerSec, totalSec, isPaused, circumference]);
+
+  // Initial / paused dashoffset: the discrete timerSec position. The rAF
+  // loop overwrites this immediately while the timer is running.
+  const safeTotal = Math.max(1, totalSec);
+  const initialClamped = Math.min(1, Math.max(0, timerSec / safeTotal));
+  const initialDashOffset = circumference * (1 - initialClamped);
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -286,6 +330,7 @@ function TimerRing({
           strokeWidth={strokeWidth}
         />
         <circle
+          ref={circleRef}
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -294,7 +339,7 @@ function TimerRing({
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          strokeDashoffset={dashOffset}
+          strokeDashoffset={initialDashOffset}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
