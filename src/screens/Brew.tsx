@@ -234,19 +234,22 @@ export default function Brew({ steps, onNavigate }: Props) {
           </ul>
         </main>
 
-        <footer className="flex gap-3 py-6">
-          <button
-            type="button"
-            onClick={() => setIsPaused((p) => !p)}
-            disabled={!isTimedStep}
-            className="flex-1 rounded-full border border-hairline py-3 text-sm font-medium text-ink transition-opacity hover:bg-hairline/30 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {isPaused ? "Resume" : "Pause"}
-          </button>
+        <footer className="grid grid-cols-2 gap-3 py-6">
+          {isTimedStep && (
+            <button
+              type="button"
+              onClick={() => setIsPaused((p) => !p)}
+              className="rounded-full border border-hairline py-3 text-sm font-medium text-ink transition-colors hover:bg-hairline/30"
+            >
+              {isPaused ? "Resume" : "Pause"}
+            </button>
+          )}
           <button
             type="button"
             onClick={handleNext}
-            className="flex-1 rounded-full bg-ink py-3 text-sm font-medium text-cream hover:opacity-90"
+            className={`rounded-full bg-ink py-3 text-sm font-medium text-cream hover:opacity-90 ${
+              isTimedStep ? "" : "col-start-2"
+            }`}
           >
             Next step ›
           </button>
