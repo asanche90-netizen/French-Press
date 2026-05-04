@@ -209,6 +209,10 @@ export default function App() {
         onSelect={(m) => {
           setMethod(m);
           setScreen("home");
+          // Per-method defaults: pour-over standard single serve is Medium
+          // (350 ml); drip stays on the previous Large default (500 ml).
+          if (m === "pour-over") setWaterMl(350);
+          else if (m === "drip") setWaterMl(500);
         }}
       />
     );
