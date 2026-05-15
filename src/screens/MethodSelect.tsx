@@ -29,14 +29,14 @@ const METHODS: {
 export default function MethodSelect({ onSelect }: Props) {
   return (
     <div className="min-h-dvh bg-cream text-ink">
-      <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
-        <header className="flex items-center justify-center py-3">
+      <div className="relative mx-auto flex min-h-dvh max-w-[480px] flex-col px-5">
+        <header className="absolute inset-x-5 top-0 flex items-center justify-center py-3">
           <h1 className="text-sm font-medium tracking-wide text-ink">
             Coffee Buddy
           </h1>
         </header>
 
-        <main className="flex flex-1 flex-col justify-center gap-4 pb-12">
+        <main className="flex flex-1 flex-col justify-center gap-4 py-16">
           <div className="mb-2 flex flex-col gap-1 text-center">
             <h2 className="text-3xl font-light tracking-tight text-ink">
               Pick your method.
