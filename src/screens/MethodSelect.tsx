@@ -52,7 +52,7 @@ export default function MethodSelect({ onSelect }: Props) {
                 <button
                   type="button"
                   onClick={() => onSelect(m.value)}
-                  className="flex w-full flex-col gap-1 rounded-2xl border border-hairline bg-cream px-5 py-5 text-left transition-colors hover:border-ink hover:bg-hairline/30 active:bg-hairline/50"
+                  className="flex w-full cursor-pointer flex-col gap-1 rounded-2xl border border-hairline bg-cream px-5 py-5 text-left transition-all duration-150 ease-out hover:border-muted hover:bg-hairline/50 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] active:bg-hairline/60"
                 >
                   <span className="text-xl font-medium text-ink">
                     {m.label}
